@@ -25,9 +25,8 @@
 namespace rm_auto_aim {
 class TaskAutoAimNode : public rm_task::TaskImageProcNode {
     public:
-        TaskAutoAimNode(std::string node_name,std::string conf_path);
+        TaskAutoAimNode(rclcpp::Node::SharedPtr &nh);
         ~TaskAutoAimNode();
-
     private:
         bool setModeCallBack(const std::shared_ptr<rm_interfaces::srv::SetMode::Request> request,
                 std::shared_ptr<rm_interfaces::srv::SetMode::Response> response) ;
@@ -35,7 +34,7 @@ class TaskAutoAimNode : public rm_task::TaskImageProcNode {
         void taskImageProcess(cv::Mat& img,double img_stamp);
     private:
         //
-        std::string conf_path_;
+        rclcpp::Node::SharedPtr nh_;
         //algo tool//自瞄算法类
         SimpleAutoAimAlgo auto_aim_algo_; 
         //坐标变换工具类

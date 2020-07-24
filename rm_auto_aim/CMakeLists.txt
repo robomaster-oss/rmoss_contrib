@@ -34,9 +34,14 @@ ament_target_dependencies(${PROJECT_NAME}
  OpenCV
 )
 
-#task_show_image example
+#task_show_auto_aim
 add_executable(task_auto_aim nodes/task_auto_aim.cpp)
 target_link_libraries(task_auto_aim ${PROJECT_NAME})
+
+# Install launch res directories
+install(DIRECTORY launch res
+  DESTINATION share/${PROJECT_NAME}
+)
 
 # Install include directories
 install(DIRECTORY include/

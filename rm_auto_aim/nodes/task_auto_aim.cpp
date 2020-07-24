@@ -15,14 +15,13 @@ using namespace rm_auto_aim;
 
 int main(int argc, char *argv[])
 {
+  //creat ros2 node
   rclcpp::init(argc, argv);
-
+  auto node = std::make_shared<rclcpp::Node>("task_auto_aim");
   // create a node
-  auto node = std::make_shared<TaskAutoAimNode>("task_auto_node","test_path");
-
+  auto task_node = std::make_shared<TaskAutoAimNode>(node);
   // run node until it's exited
   rclcpp::spin(node);
-
   //clean up 
   rclcpp::shutdown();
   return 0;

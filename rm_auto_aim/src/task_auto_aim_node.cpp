@@ -16,25 +16,23 @@ using namespace rm_auto_aim;
 
 using std::placeholders::_1;
 
-TaskAutoAimNode::TaskAutoAimNode(std::string node_name,std::string conf_path):
-                    TaskImageProcNode(node_name) {
+TaskAutoAimNode::TaskAutoAimNode(rclcpp::Node::SharedPtr &nh):
+                    TaskImageProcNode(nh) {
     gimbal_ctrl_flag_ = true;
     shoot_ctrl_flag_ = true;
-    conf_path_ = conf_path;
+    nh_ = nh;
     //
     /*************create pub,sub,srv************************/
-    gimbal_ctrl_pub_ =  this->create_publisher<rm_interfaces::msg::GimbalControl>("gimbal_control", 10); 
-    shoot_pub_ = this->create_publisher<rm_interfaces::msg::ShootControl>("shoot_control", 10); 
-    state_info_sub_ =this->create_subscription<rm_interfaces::msg::StdBotState>(          // CHANGE
+    gimbal_ctrl_pub_ =  nh_->create_publisher<rm_interfaces::msg::GimbalControl>("gimbal_control", 10); 
+    shoot_pub_ = nh_->create_publisher<rm_interfaces::msg::ShootControl>("shoot_control", 10); 
+    state_info_sub_ =nh_->create_subscription<rm_interfaces::msg::StdBotState>(          // CHANGE
           "state_info", 10, std::bind(&TaskAutoAimNode::robotStateCallback, this, std::placeholders::_1));
-    set_mode_srv_ = this->create_service<rm_interfaces::srv::SetMode>("task_auto_aim_set_mode",
+    set_mode_srv_ = nh_->create_service<rm_interfaces::srv::SetMode>("task_auto_aim_set_mode",
                          std::bind(&TaskAutoAimNode::setModeCallBack, this, std::placeholders::_1,std::placeholders::_2));
     // init tool class
     int ret;
-    ret = auto_aim_algo_.init(conf_path);
+    ret = auto_aim_algo_.init("");
     projectile_tansform_tool_.setModel(NULL);
-    //
-    start("/top_camera/image_raw");
     setRunFlag(true);
 }
 
@@ -91,10 +89,10 @@ void TaskAutoAimNode::taskImageProcess(cv::Mat &img, double img_stamp) {
         //auto_aim_info.yaw = yaw;
  
         //auto_aim_info.cast = sqrt(yaw * yaw + pitch * pitch)*180/CV_PI;
-        RCLCPP_INFO(this->get_logger(), "taskImageProcess():find.");
+        RCLCPP_INFO(nh_->get_logger(), "taskImageProcess():find.");
     } else {
        //auto_aim_info.result_code = 0x00;
-        RCLCPP_INFO(this->get_logger(), "not find target!!!!!!");//表示没有发现目标
+        RCLCPP_INFO(nh_->get_logger(), "not find target!!!!!!");//表示没有发现目标
         // ROS_INFO("");
     }
     //autoaim_info_pub_.publish(auto_aim_info);
