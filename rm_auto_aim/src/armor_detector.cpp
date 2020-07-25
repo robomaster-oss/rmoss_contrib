@@ -22,10 +22,6 @@ using namespace rm_tool;
 ArmorDetector::ArmorDetector() { target_is_red_= true; }
 ArmorDetector::~ArmorDetector() {}
 
-int ArmorDetector::init(std::string configPath) {
-    UNUSED(configPath);
-    return 0;
-}
 
 //颜色和亮度做与运算
 int ArmorDetector::preImg(Mat src, Mat &dst) {
@@ -285,5 +281,4 @@ void ArmorDetector::setTargetColor(bool is_red){
     if(target_is_red_!=is_red){
         target_is_red_=is_red;      
     }
-
 }

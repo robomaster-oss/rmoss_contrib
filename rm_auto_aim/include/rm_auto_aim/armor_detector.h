@@ -62,7 +62,6 @@ namespace rm_auto_aim{
      ArmorDetector();
      ~ArmorDetector();
   public:
-     int init(std::string configPath);
      void setTargetColor(bool is_red);
      int process(cv::Mat img);
      std::vector<ArmorDescriptor> getArmorVector();

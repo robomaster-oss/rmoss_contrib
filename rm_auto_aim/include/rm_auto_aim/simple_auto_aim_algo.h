@@ -33,12 +33,11 @@ namespace rm_auto_aim{
 	SimpleAutoAimAlgo();
 	~SimpleAutoAimAlgo();
     public:
-       int init(std::string configPath);
+       int init();
        void setTargetColor(bool is_red);
-       void setData(float current_pitch);
-       int process(cv::Mat img);
+       int process(cv::Mat img,float current_pitch);
        ArmorTarget getTarget();
-       void setUnTrack();
+       void setTrack(bool is_track);
     private:
        //工具类
        ArmorDetector armor_detector_; 
@@ -52,7 +51,6 @@ namespace rm_auto_aim{
        bool mIsTrack;
        cv::Point2f mLastPoint2;
        cv::Point3f mLastPoint3;
-       float current_pitch_;
    };
 }
 

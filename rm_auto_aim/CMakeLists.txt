@@ -38,6 +38,11 @@ ament_target_dependencies(${PROJECT_NAME}
 add_executable(task_auto_aim nodes/task_auto_aim.cpp)
 target_link_libraries(task_auto_aim ${PROJECT_NAME})
 
+#test_armor_detector
+add_executable(test_armor_detector nodes/test_armor_detector.cpp)
+target_link_libraries(test_armor_detector ${PROJECT_NAME})
+
+
 # Install launch res directories
 install(DIRECTORY launch res
   DESTINATION share/${PROJECT_NAME}
@@ -54,7 +59,7 @@ install(TARGETS ${PROJECT_NAME}
   RUNTIME DESTINATION bin
 )
 # Install executables
-install(TARGETS task_auto_aim
+install(TARGETS task_auto_aim test_armor_detector
   DESTINATION lib/${PROJECT_NAME}
 )
 

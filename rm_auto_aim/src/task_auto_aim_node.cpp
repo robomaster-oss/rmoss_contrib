@@ -31,9 +31,10 @@ TaskAutoAimNode::TaskAutoAimNode(rclcpp::Node::SharedPtr &nh):
                          std::bind(&TaskAutoAimNode::setModeCallBack, this, std::placeholders::_1,std::placeholders::_2));
     // init tool class
     int ret;
-    ret = auto_aim_algo_.init("");
+    ret = auto_aim_algo_.init();
     projectile_tansform_tool_.setModel(NULL);
     setRunFlag(true);
+    RCLCPP_INFO(nh_->get_logger(), "init!!!!!!");
 }
 
 TaskAutoAimNode::~TaskAutoAimNode() {}
@@ -42,14 +43,13 @@ void TaskAutoAimNode::taskImageProcess(cv::Mat &img, double img_stamp) {
     int ret;
     //robot_msgs::TaskAutoAimInfo auto_aim_info;
     //auto_aim_info.task_mode = task_mode_;
-    auto_aim_algo_.setData(pitch_info_);
-    ret = auto_aim_algo_.process(img);
+    ret = auto_aim_algo_.process(img,pitch_info_);
     if (ret == 0) {
         // ROS_INFO("find target!!!!!!");
         ArmorTarget target = auto_aim_algo_.getTarget();
         Point3f position = target.postion / 100;
-        // //transformation
-        // float pitch, yaw;
+        //transformation
+         float pitch, yaw;
         // Point3f position_tran, poistion_in_world;
         // position_tran=position+offset_trans_;
         // float cosa, sina;
@@ -89,9 +89,10 @@ void TaskAutoAimNode::taskImageProcess(cv::Mat &img, double img_stamp) {
         //auto_aim_info.yaw = yaw;
  
         //auto_aim_info.cast = sqrt(yaw * yaw + pitch * pitch)*180/CV_PI;
-        RCLCPP_INFO(nh_->get_logger(), "taskImageProcess():find.");
-    } else {
-       //auto_aim_info.result_code = 0x00;
+        RCLCPP_INFO(nh_->get_logger(), "taskImageProcess():find." );
+        cout << position << endl;
+    }else{
+        //auto_aim_info.result_code = 0x00;
         RCLCPP_INFO(nh_->get_logger(), "not find target!!!!!!");//表示没有发现目标
         // ROS_INFO("");
     }

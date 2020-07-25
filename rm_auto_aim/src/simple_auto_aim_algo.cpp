@@ -25,7 +25,7 @@ SimpleAutoAimAlgo::~SimpleAutoAimAlgo(){
 }
 
 
-int SimpleAutoAimAlgo::init(std::string configPath){
+int SimpleAutoAimAlgo::init(){
     //加载参数
     //初始化装甲板参数
     float realWidth,realHeight,half_x,half_y;
@@ -44,13 +44,15 @@ int SimpleAutoAimAlgo::init(std::string configPath){
     mBigArmorPoints.emplace_back(-half_x, -half_y,0);
     mBigArmorPoints.emplace_back(half_x, -half_y,0);
     //初始化工具类
-    armor_detector_.init(configPath);
-    mono_location_tool_.init(configPath);
+    armor_detector_.setTargetColor(true);
+    Mat intrinsic_matrix = (Mat_<float>(3, 3) << 885.056754, 0.000000, 640, 0.000000, 883.687121, 360, 0.000000, 0.000000, 1.000000);
+    Mat distortion_coeffs = (Mat_<float>(1, 5) << -0.071695, 0.091804, -0.004348, -0.003515, 0.000000);
+    mono_location_tool_.init(intrinsic_matrix,distortion_coeffs);
     return 0;
 }
 
 
-int SimpleAutoAimAlgo::process(cv::Mat img){
+int SimpleAutoAimAlgo::process(cv::Mat img,float current_pitch){
    //step1.图像识别
    int ret;
    ret=armor_detector_.process(img);
@@ -80,11 +82,11 @@ int SimpleAutoAimAlgo::process(cv::Mat img){
       //filter by height
       float cam_pitch,cam_yaw;
       mono_location_tool_.imagePoint2ViewAngle(armor_target.armorDescriptor.centerPoint,cam_pitch,cam_yaw);
-      float theta_w=cam_pitch+current_pitch_;
+      float theta_w=cam_pitch+current_pitch;
       float distance_yz=sqrt(armor_target.postion.y*armor_target.postion.y+ armor_target.postion.z*armor_target.postion.z);
       float height=-distance_yz*sin(theta_w);
       if(height>10){
-         std::cout<<"fillter by height:"<<height<<",current_pitch_:"<<current_pitch_<<",theta:"<<theta_w<<std::endl;
+         std::cout<<"fillter by height:"<<height<<",current_pitch:"<<current_pitch<<",theta:"<<theta_w<<std::endl;
          continue;
       }
       armor_target_vector.push_back(armor_target);
@@ -140,12 +142,8 @@ ArmorTarget SimpleAutoAimAlgo::getTarget(){
    return mTarget;
 }
 
-void SimpleAutoAimAlgo::setUnTrack(){
-   mIsTrack=false;
-}
-
-void SimpleAutoAimAlgo::setData(float current_pitch){
-   current_pitch_=current_pitch;
+void SimpleAutoAimAlgo::setTrack(bool is_track){
+   mIsTrack=is_track;
 }
 
 void SimpleAutoAimAlgo::setTargetColor(bool is_red){
