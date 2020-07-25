@@ -24,7 +24,6 @@ SimpleAutoAimAlgo::~SimpleAutoAimAlgo(){
 
 }
 
-
 int SimpleAutoAimAlgo::init(){
     //加载参数
     //初始化装甲板参数

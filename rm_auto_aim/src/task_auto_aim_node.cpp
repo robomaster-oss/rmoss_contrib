@@ -30,8 +30,7 @@ TaskAutoAimNode::TaskAutoAimNode(rclcpp::Node::SharedPtr &nh):
     set_mode_srv_ = nh_->create_service<rm_interfaces::srv::SetMode>("task_auto_aim_set_mode",
                          std::bind(&TaskAutoAimNode::setModeCallBack, this, std::placeholders::_1,std::placeholders::_2));
     // init tool class
-    int ret;
-    ret = auto_aim_algo_.init();
+    auto_aim_algo_.init();
     projectile_tansform_tool_.setModel(NULL);
     setRunFlag(true);
     RCLCPP_INFO(nh_->get_logger(), "init!!!!!!");
@@ -40,6 +39,7 @@ TaskAutoAimNode::TaskAutoAimNode(rclcpp::Node::SharedPtr &nh):
 TaskAutoAimNode::~TaskAutoAimNode() {}
 
 void TaskAutoAimNode::taskImageProcess(cv::Mat &img, double img_stamp) {
+    RCLCPP_INFO(nh_->get_logger(), "stamp:%f",img_stamp);
     int ret;
     //robot_msgs::TaskAutoAimInfo auto_aim_info;
     //auto_aim_info.task_mode = task_mode_;
@@ -49,7 +49,7 @@ void TaskAutoAimNode::taskImageProcess(cv::Mat &img, double img_stamp) {
         ArmorTarget target = auto_aim_algo_.getTarget();
         Point3f position = target.postion / 100;
         //transformation
-         float pitch, yaw;
+        //float pitch, yaw;
         // Point3f position_tran, poistion_in_world;
         // position_tran=position+offset_trans_;
         // float cosa, sina;
