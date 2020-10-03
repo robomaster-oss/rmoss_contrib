@@ -15,7 +15,7 @@ find_package(ament_index_cpp REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(rm_tool REQUIRED)
 find_package(rm_task REQUIRED)
-find_package(rm_interfaces REQUIRED)
+find_package(rm_msgs REQUIRED)
 find_package(rm_projectile_motion REQUIRED)
 find_package(OpenCV REQUIRED)
 
@@ -29,7 +29,7 @@ ament_target_dependencies(${PROJECT_NAME}
  rclcpp 
  rm_tool
  rm_task
- rm_interfaces
+ rm_msgs
  rm_projectile_motion
  OpenCV
 )
@@ -71,7 +71,7 @@ ament_export_libraries(${PROJECT_NAME})
 ament_export_dependencies(rclcpp)
 ament_export_dependencies(rm_tool)
 ament_export_dependencies(rm_task)
-ament_export_dependencies(rm_interfaces)
+ament_export_dependencies(rm_msgs)
 ament_export_dependencies(rm_projectile_motion)
 ament_export_dependencies(OpenCV)
 

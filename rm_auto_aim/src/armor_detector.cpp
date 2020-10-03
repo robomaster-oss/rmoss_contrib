@@ -46,11 +46,11 @@ int ArmorDetector::preImg(Mat src, Mat &dst) {
     //目标颜色区域
     Mat element = getStructuringElement(MORPH_ELLIPSE, Size(7, 7));
     dilate(imgTargetColor, imgTargetColor, element);
-    threshold(imgTargetColor, imgTargetColor, 72, 255, CV_THRESH_BINARY);
+    threshold(imgTargetColor, imgTargetColor, 72, 255, cv::THRESH_BINARY);
     DEBUG_TOOL(imshow("target_dialte_thre", imgTargetColor));
     //亮度区域
     GaussianBlur(imgBrightness, imgBrightness, Size(3, 3), 1);
-    threshold(imgBrightness, imgBrightness, 150, 255, CV_THRESH_BINARY);
+    threshold(imgBrightness, imgBrightness, 150, 255, cv::THRESH_BINARY);
     DEBUG_TOOL(imshow("bright_thre", imgBrightness));
     //逻辑与，求交集
     bitwise_and(imgTargetColor, imgBrightness, dst);

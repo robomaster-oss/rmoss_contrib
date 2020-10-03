@@ -17,10 +17,10 @@
 #include "rm_auto_aim/simple_auto_aim_algo.h"
 #include "rm_projectile_motion/projectile_transform_tool.h"
 
-#include "rm_interfaces/msg/gimbal_control.hpp" 
-#include "rm_interfaces/msg/shoot_control.hpp" 
-#include "rm_interfaces/msg/std_bot_state.hpp" 
-#include "rm_interfaces/srv/set_mode.hpp" 
+#include "rm_msgs/msg/gimbal_control.hpp" 
+#include "rm_msgs/msg/shoot_control.hpp" 
+#include "rm_msgs/msg/std_bot_state.hpp" 
+#include "rm_msgs/srv/set_mode.hpp" 
 
 namespace rm_auto_aim {
 class TaskAutoAimNode : public rm_task::TaskImageProcNode {
@@ -28,9 +28,9 @@ class TaskAutoAimNode : public rm_task::TaskImageProcNode {
         TaskAutoAimNode(rclcpp::Node::SharedPtr &nh);
         ~TaskAutoAimNode();
     private:
-        bool setModeCallBack(const std::shared_ptr<rm_interfaces::srv::SetMode::Request> request,
-                std::shared_ptr<rm_interfaces::srv::SetMode::Response> response) ;
-        void robotStateCallback(const rm_interfaces::msg::StdBotState::SharedPtr msg);
+        bool setModeCallBack(const std::shared_ptr<rm_msgs::srv::SetMode::Request> request,
+                std::shared_ptr<rm_msgs::srv::SetMode::Response> response) ;
+        void robotStateCallback(const rm_msgs::msg::StdBotState::SharedPtr msg);
         void taskImageProcess(cv::Mat& img,double img_stamp);
     private:
         //
@@ -40,13 +40,13 @@ class TaskAutoAimNode : public rm_task::TaskImageProcNode {
         //坐标变换工具类
         rm_projectile_motion::ProjectileTransformTool projectile_tansform_tool_;
         // ros pub
-        rclcpp::Publisher<rm_interfaces::msg::GimbalControl>::SharedPtr gimbal_ctrl_pub_;
-        rclcpp::Publisher<rm_interfaces::msg::ShootControl>::SharedPtr shoot_pub_;
+        rclcpp::Publisher<rm_msgs::msg::GimbalControl>::SharedPtr gimbal_ctrl_pub_;
+        rclcpp::Publisher<rm_msgs::msg::ShootControl>::SharedPtr shoot_pub_;
         // ros sub
-        rclcpp::Subscription<rm_interfaces::msg::StdBotState>::SharedPtr state_info_sub_;
+        rclcpp::Subscription<rm_msgs::msg::StdBotState>::SharedPtr state_info_sub_;
         // ros srv
         // 0x00暂停，0x01,正常，0x02,不控制，0x03,控制不发子弹,0x10,更新颜色配置
-        rclcpp::Service<rm_interfaces::srv::SetMode>::SharedPtr set_mode_srv_;
+        rclcpp::Service<rm_msgs::srv::SetMode>::SharedPtr set_mode_srv_;
         //data
         // offset of cam-gimbal
         cv::Point3f offset_trans_; //云台相对于相机的坐标（直接测量获得），单位为cm
