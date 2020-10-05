@@ -9,7 +9,7 @@
  *
  ******************************************************************************/
 #include <rclcpp/rclcpp.hpp>
-#include "rm_auto_aim/task_auto_aim_node.h"
+#include "rm_auto_aim/task_auto_aim.h"
 
 using namespace rm_auto_aim;
 
@@ -18,8 +18,8 @@ int main(int argc, char *argv[])
   //creat ros2 node
   rclcpp::init(argc, argv);
   auto node = std::make_shared<rclcpp::Node>("task_auto_aim");
-  // create a node
-  auto task_node = std::make_shared<TaskAutoAimNode>(node);
+  // create task
+  auto task = std::make_shared<TaskAutoAim>(node);
   // run node until it's exited
   rclcpp::spin(node);
   //clean up 

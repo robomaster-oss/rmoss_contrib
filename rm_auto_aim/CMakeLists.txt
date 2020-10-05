@@ -35,7 +35,7 @@ ament_target_dependencies(${PROJECT_NAME}
 )
 
 #task_show_auto_aim
-add_executable(task_auto_aim nodes/task_auto_aim.cpp)
+add_executable(task_auto_aim nodes/task_auto_aim_node.cpp)
 target_link_libraries(task_auto_aim ${PROJECT_NAME})
 
 #test_armor_detector

@@ -8,12 +8,12 @@
  *  If not, see <https://opensource.org/licenses/MIT/>.
  *
  ******************************************************************************/
-#ifndef RM_AUTO_AIM_TASK_AUTO_AIM_NODE_H
-#define RM_AUTO_AIM_TASK_AUTO_AIM_NODE_H
+#ifndef RM_AUTO_AIM_TASK_AUTO_AIM_H
+#define RM_AUTO_AIM_TASK_AUTO_AIM_H
 
 #include <rclcpp/rclcpp.hpp>
 #include <opencv2/opencv.hpp>
-#include "rm_task/task_image_proc_node.h"
+#include "rm_task/task_image_proc.h"
 #include "rm_auto_aim/simple_auto_aim_algo.h"
 #include "rm_projectile_motion/projectile_transform_tool.h"
 
@@ -23,10 +23,10 @@
 #include "rm_msgs/srv/set_mode.hpp" 
 
 namespace rm_auto_aim {
-class TaskAutoAimNode : public rm_task::TaskImageProcNode {
+class TaskAutoAim : public rm_task::TaskImageProc {
     public:
-        TaskAutoAimNode(rclcpp::Node::SharedPtr &nh);
-        ~TaskAutoAimNode();
+        TaskAutoAim(rclcpp::Node::SharedPtr &nh);
+        ~TaskAutoAim();
     private:
         bool setModeCallBack(const std::shared_ptr<rm_msgs::srv::SetMode::Request> request,
                 std::shared_ptr<rm_msgs::srv::SetMode::Response> response) ;
@@ -62,4 +62,4 @@ class TaskAutoAimNode : public rm_task::TaskImageProcNode {
 };
 }  // namespace rm_auto_aim
 
-#endif  // RM_AUTO_AIM_TASK_AUTO_AIM_NODE_H
+#endif  // RM_AUTO_AIM_TASK_AUTO_AIM_H

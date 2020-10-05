@@ -8,7 +8,7 @@
  *  If not, see <https://opensource.org/licenses/MIT/>.
  *
  ******************************************************************************/
-#include "rm_auto_aim/task_auto_aim_node.h"
+#include "rm_auto_aim/task_auto_aim.h"
 
 using namespace cv;
 using namespace std;
@@ -16,8 +16,8 @@ using namespace rm_auto_aim;
 
 using std::placeholders::_1;
 
-TaskAutoAimNode::TaskAutoAimNode(rclcpp::Node::SharedPtr &nh):
-                    TaskImageProcNode(nh) {
+TaskAutoAim::TaskAutoAim(rclcpp::Node::SharedPtr &nh):
+                    TaskImageProc(nh) {
     gimbal_ctrl_flag_ = true;
     shoot_ctrl_flag_ = true;
     nh_ = nh;
@@ -26,9 +26,9 @@ TaskAutoAimNode::TaskAutoAimNode(rclcpp::Node::SharedPtr &nh):
     gimbal_ctrl_pub_ =  nh_->create_publisher<rm_msgs::msg::GimbalControl>("gimbal_control", 10); 
     shoot_pub_ = nh_->create_publisher<rm_msgs::msg::ShootControl>("shoot_control", 10); 
     state_info_sub_ =nh_->create_subscription<rm_msgs::msg::StdBotState>(          // CHANGE
-          "state_info", 10, std::bind(&TaskAutoAimNode::robotStateCallback, this, std::placeholders::_1));
+          "state_info", 10, std::bind(&TaskAutoAim::robotStateCallback, this, std::placeholders::_1));
     set_mode_srv_ = nh_->create_service<rm_msgs::srv::SetMode>("task_auto_aim_set_mode",
-                         std::bind(&TaskAutoAimNode::setModeCallBack, this, std::placeholders::_1,std::placeholders::_2));
+                         std::bind(&TaskAutoAim::setModeCallBack, this, std::placeholders::_1,std::placeholders::_2));
     // init tool class
     auto_aim_algo_.init();
     projectile_tansform_tool_.setModel(NULL);
@@ -36,9 +36,9 @@ TaskAutoAimNode::TaskAutoAimNode(rclcpp::Node::SharedPtr &nh):
     RCLCPP_INFO(nh_->get_logger(), "init!!!!!!");
 }
 
-TaskAutoAimNode::~TaskAutoAimNode() {}
+TaskAutoAim::~TaskAutoAim() {}
 
-void TaskAutoAimNode::taskImageProcess(cv::Mat &img, double img_stamp) {
+void TaskAutoAim::taskImageProcess(cv::Mat &img, double img_stamp) {
     RCLCPP_INFO(nh_->get_logger(), "stamp:%f",img_stamp);
     int ret;
     //robot_msgs::TaskAutoAimInfo auto_aim_info;
@@ -99,7 +99,7 @@ void TaskAutoAimNode::taskImageProcess(cv::Mat &img, double img_stamp) {
     //autoaim_info_pub_.publish(auto_aim_info);
 }
 
-bool TaskAutoAimNode::setModeCallBack(
+bool TaskAutoAim::setModeCallBack(
     const std::shared_ptr<rm_msgs::srv::SetMode::Request> request,
     std::shared_ptr<rm_msgs::srv::SetMode::Response> response) {
     // 0x00,启动，正常控制，0x01,启动,不发子弹,0x02,启动，不控制,
@@ -138,6 +138,6 @@ bool TaskAutoAimNode::setModeCallBack(
     return true;
 }
 
-void TaskAutoAimNode::robotStateCallback(const rm_msgs::msg::StdBotState::SharedPtr msg){
+void TaskAutoAim::robotStateCallback(const rm_msgs::msg::StdBotState::SharedPtr msg){
     pitch_info_ = msg->current_pitch;
 }
