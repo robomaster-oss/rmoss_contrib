@@ -10,10 +10,11 @@
  ******************************************************************************/
 
 #include <cmath>
-#include <rm_tool/common_def.h>
-#include "rm_tool/image_tool.h"
-#include "rm_tool/debug_tool.h"
-#include "rm_auto_aim/armor_detector.h"
+#include <rm_tool/common_def.hpp>
+#include <rm_tool/image_tool.hpp>
+#include <rm_tool/debug_tool.hpp>
+#include "rm_auto_aim/armor_detector.hpp"
+
 using namespace std;
 using namespace cv;
 using namespace rm_auto_aim;

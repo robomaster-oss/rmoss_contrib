@@ -8,8 +8,8 @@
  *  If not, see <https://opensource.org/licenses/MIT/>.
  *
  ******************************************************************************/
-#include "rm_auto_aim/simple_auto_aim_algo.h"
-#include "rm_tool/image_tool.h"
+#include "rm_auto_aim/simple_auto_aim_algo.hpp"
+#include "rm_tool/image_tool.hpp"
 
 using namespace std;
 using namespace cv;

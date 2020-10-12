@@ -9,7 +9,7 @@
  *
  ******************************************************************************/
 #include <rclcpp/rclcpp.hpp>
-#include "rm_auto_aim/task_auto_aim.h"
+#include "rm_auto_aim/task_auto_aim.hpp"
 
 using namespace rm_auto_aim;
 

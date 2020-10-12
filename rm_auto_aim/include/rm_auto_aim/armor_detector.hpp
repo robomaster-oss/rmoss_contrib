@@ -9,8 +9,8 @@
  *
  ******************************************************************************/
 
-#ifndef RM_AUTO_AIM_ARMOR_DETECTOR_H
-#define RM_AUTO_AIM_ARMOR_DETECTOR_H
+#ifndef RM_AUTO_AIM_ARMOR_DETECTOR_HPP
+#define RM_AUTO_AIM_ARMOR_DETECTOR_HPP
 
 #include<opencv2/opencv.hpp>
 
@@ -81,4 +81,4 @@ namespace rm_auto_aim{
 
 }
 
-#endif //RM_AUTO_AIM_ARMOR_DETECTOR_H
+#endif //RM_AUTO_AIM_ARMOR_DETECTOR_HPP

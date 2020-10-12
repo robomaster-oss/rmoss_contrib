@@ -8,12 +8,12 @@
  *  If not, see <https://opensource.org/licenses/MIT/>.
  *
  ******************************************************************************/
-#ifndef RM_AUTO_AIM_SIMPLE_AUTO_AIM_ALGO_H
-#define RM_AUTO_AIM_SIMPLE_AUTO_AIM_ALGO_H
+#ifndef RM_AUTO_AIM_SIMPLE_AUTO_AIM_ALGO_HPP
+#define RM_AUTO_AIM_SIMPLE_AUTO_AIM_ALGO_HPP
 #include <string>
 #include <opencv2/opencv.hpp>
-#include "rm_auto_aim/armor_detector.h"
-#include "rm_tool/mono_measure_tool.h"
+#include "rm_auto_aim/armor_detector.hpp"
+#include "rm_tool/mono_measure_tool.hpp"
 
 namespace rm_auto_aim{
    //自瞄算法封装。 
@@ -27,7 +27,6 @@ namespace rm_auto_aim{
         float track3dCast=0; //与上次目标的3D距离代价
     } ArmorTarget;
 
-   
     class SimpleAutoAimAlgo{
     public:
 	SimpleAutoAimAlgo();
@@ -54,4 +53,4 @@ namespace rm_auto_aim{
    };
 }
 
-#endif//RM_AUTO_AIM_SIMPLE_AUTO_AIM_ALGO_H
+#endif//RM_AUTO_AIM_SIMPLE_AUTO_AIM_ALGO_HPP

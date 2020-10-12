@@ -10,8 +10,8 @@
  ******************************************************************************/
 #include <rclcpp/rclcpp.hpp>
 #include <opencv2/opencv.hpp>
-#include "rm_auto_aim/armor_detector.h"
-#include "rm_tool/debug_tool.h"
+#include "rm_auto_aim/armor_detector.hpp"
+#include "rm_tool/debug_tool.hpp"
 
 using namespace rm_auto_aim;
 using namespace cv;

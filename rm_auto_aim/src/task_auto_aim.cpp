@@ -8,7 +8,7 @@
  *  If not, see <https://opensource.org/licenses/MIT/>.
  *
  ******************************************************************************/
-#include "rm_auto_aim/task_auto_aim.h"
+#include "rm_auto_aim/task_auto_aim.hpp"
 
 using namespace cv;
 using namespace std;
@@ -23,11 +23,11 @@ TaskAutoAim::TaskAutoAim(rclcpp::Node::SharedPtr &nh):
     nh_ = nh;
     //
     /*************create pub,sub,srv************************/
-    gimbal_ctrl_pub_ =  nh_->create_publisher<rm_msgs::msg::GimbalControl>("gimbal_control", 10); 
-    shoot_pub_ = nh_->create_publisher<rm_msgs::msg::ShootControl>("shoot_control", 10); 
-    state_info_sub_ =nh_->create_subscription<rm_msgs::msg::StdBotState>(          // CHANGE
+    gimbal_ctrl_pub_ =  nh_->create_publisher<rm_interfaces::msg::GimbalControl>("gimbal_control", 10); 
+    shoot_pub_ = nh_->create_publisher<rm_interfaces::msg::ShootControl>("shoot_control", 10); 
+    state_info_sub_ =nh_->create_subscription<rm_interfaces::msg::StdBotState>(          // CHANGE
           "state_info", 10, std::bind(&TaskAutoAim::robotStateCallback, this, std::placeholders::_1));
-    set_mode_srv_ = nh_->create_service<rm_msgs::srv::SetMode>("task_auto_aim_set_mode",
+    set_mode_srv_ = nh_->create_service<rm_interfaces::srv::SetMode>("task_auto_aim_set_mode",
                          std::bind(&TaskAutoAim::setModeCallBack, this, std::placeholders::_1,std::placeholders::_2));
     // init tool class
     auto_aim_algo_.init();
@@ -100,8 +100,8 @@ void TaskAutoAim::taskImageProcess(cv::Mat &img, double img_stamp) {
 }
 
 bool TaskAutoAim::setModeCallBack(
-    const std::shared_ptr<rm_msgs::srv::SetMode::Request> request,
-    std::shared_ptr<rm_msgs::srv::SetMode::Response> response) {
+    const std::shared_ptr<rm_interfaces::srv::SetMode::Request> request,
+    std::shared_ptr<rm_interfaces::srv::SetMode::Response> response) {
     // 0x00,启动，正常控制，0x01,启动,不发子弹,0x02,启动，不控制,
     // 0x03 暂停/休眠。
     response->success = false;
@@ -138,6 +138,6 @@ bool TaskAutoAim::setModeCallBack(
     return true;
 }
 
-void TaskAutoAim::robotStateCallback(const rm_msgs::msg::StdBotState::SharedPtr msg){
+void TaskAutoAim::robotStateCallback(const rm_interfaces::msg::StdBotState::SharedPtr msg){
     pitch_info_ = msg->current_pitch;
 }

@@ -1,7 +1,7 @@
-#!/usr/bin/env python
-import rospy
+#!/usr/bin/python3
+import rclpy
 import sys, select, tty, termios
-from robot_msgs.srv import SetMode
+from rm_interfaces.srv import SetMode
 
 def task_auto_aim_client(cmd,param=0x00):
     try:
