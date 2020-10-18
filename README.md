@@ -23,4 +23,4 @@ rmoss_contrib是RoboMasterOSS中的一个基础项目，基于ROS2开发，采�
 
 * gezp zhenpeng.ge@qq.com
 
-* rmoss_contribis provided under MIT.
+* rmoss_contrib is provided under MIT.
