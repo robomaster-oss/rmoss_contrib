@@ -21,19 +21,28 @@ TaskAutoAim::TaskAutoAim(rclcpp::Node::SharedPtr &nh):
     gimbal_ctrl_flag_ = true;
     shoot_ctrl_flag_ = true;
     nh_ = nh;
-    //
-    /*************create pub,sub,srv************************/
+    //init params
+    nh_->declare_parameter("camera_intrinsic");
+    nh_->declare_parameter("camera_distortion");
+    //create pub,sub,srv
     gimbal_ctrl_pub_ =  nh_->create_publisher<rm_interfaces::msg::GimbalControl>("gimbal_control", 10); 
     shoot_pub_ = nh_->create_publisher<rm_interfaces::msg::ShootControl>("shoot_control", 10); 
     state_info_sub_ =nh_->create_subscription<rm_interfaces::msg::StdBotState>(          // CHANGE
           "state_info", 10, std::bind(&TaskAutoAim::robotStateCallback, this, std::placeholders::_1));
     set_mode_srv_ = nh_->create_service<rm_interfaces::srv::SetMode>("task_auto_aim_set_mode",
                          std::bind(&TaskAutoAim::setModeCallBack, this, std::placeholders::_1,std::placeholders::_2));
+    //get param
+    auto camera_intrinsic_param =nh_->get_parameter("camera_intrinsic");
+    std::vector<double> camera_intrinsic = camera_intrinsic_param.as_double_array();
+    auto camera_distortion_param =nh_->get_parameter("camera_distortion");
+    std::vector<double> camera_distortion = camera_distortion_param.as_double_array();
     // init tool class
-    auto_aim_algo_.init();
+    auto_aim_algo_.init(camera_intrinsic,camera_distortion);
+    //set target blue
+    auto_aim_algo_.setTargetColor(false);
     projectile_tansform_tool_.setModel(NULL);
     setRunFlag(true);
-    RCLCPP_INFO(nh_->get_logger(), "init!!!!!!");
+    RCLCPP_INFO(nh_->get_logger(), "init!");
 }
 
 TaskAutoAim::~TaskAutoAim() {}

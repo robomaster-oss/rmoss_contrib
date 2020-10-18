@@ -32,7 +32,7 @@ namespace rm_auto_aim{
 	SimpleAutoAimAlgo();
 	~SimpleAutoAimAlgo();
     public:
-       int init();
+       int init(std::vector<double> camera_intrinsic,std::vector<double> camera_distortion);
        void setTargetColor(bool is_red);
        int process(cv::Mat img,float current_pitch);
        ArmorTarget getTarget();

@@ -1,0 +1,5 @@
+task_auto_aim:
+    ros__parameters:
+        is_debug: True
+        camera_intrinsic: [1552.7, 0.0, 640.0, 0.0, 1537.9, 360.0, 0.0, 0.0, 1.0]
+        camera_distortion: [-0.071695, 0.091804, -0.004348, -0.003515, 0.000000]
