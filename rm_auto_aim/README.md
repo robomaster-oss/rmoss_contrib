@@ -2,7 +2,7 @@
 
 ## 1.简介
 
-rm_auto_aim模块是RoboMaster自瞄功能实现，为步兵机器人或在其他射击机器人提供自瞄支持，通过摄像头识别敌方装甲板位置，计算出云台所需要转动的角度。
+rm_auto_aim模块是RoboMaster自瞄功能的一个简单实现，为步兵机器人或在其他射击机器人提供自瞄支持，通过摄像头识别敌方装甲板位置，计算出云台所需要转动的角度。
 
 ## 2.文件说明
 
@@ -53,10 +53,10 @@ ros2 run rqt_image_view rqt_image_view
 使用client_test.py启动自瞄任务
 
 ```bash
-#TODO
+ros2 run rm_auto_aim client_test.py
 ```
 
-* 根据提示启动（按`q`）
+* 按`w`启动，按`q`暂停
 
 debug信息（图像处理中间过程信息）
 
@@ -75,4 +75,4 @@ is_debug : False
 ### 5.维护者及开源许可证
 
 - gezp zhenpeng.ge@qq.com
-- rm_auto_aim provided under MIT.
+- rm_auto_aim is provided under MIT.

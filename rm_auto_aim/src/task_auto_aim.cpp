@@ -29,7 +29,7 @@ TaskAutoAim::TaskAutoAim(rclcpp::Node::SharedPtr &nh):
     shoot_pub_ = nh_->create_publisher<rm_interfaces::msg::ShootControl>("shoot_control", 10); 
     state_info_sub_ =nh_->create_subscription<rm_interfaces::msg::StdBotState>(          // CHANGE
           "state_info", 10, std::bind(&TaskAutoAim::robotStateCallback, this, std::placeholders::_1));
-    set_mode_srv_ = nh_->create_service<rm_interfaces::srv::SetMode>("task_auto_aim_set_mode",
+    set_mode_srv_ = nh_->create_service<rm_interfaces::srv::SetMode>("task_auto_aim/set_mode",
                          std::bind(&TaskAutoAim::setModeCallBack, this, std::placeholders::_1,std::placeholders::_2));
     //get param
     auto camera_intrinsic_param =nh_->get_parameter("camera_intrinsic");
@@ -50,10 +50,9 @@ void TaskAutoAim::taskImageProcess(cv::Mat &img, double /*img_stamp*/) {
     int ret;
     ret = auto_aim_algo_.process(img,pitch_info_);
     if (ret == 0) {
-        // ROS_INFO("find target!!!!!!");
         ArmorTarget target = auto_aim_algo_.getTarget();
         Point3f position = target.postion / 100;
-        //
+        //transform
         float pitch,yaw;
         if(projectile_tansform_tool_.transform(position,pitch,yaw)!=0){
             return;
@@ -72,20 +71,18 @@ void TaskAutoAim::taskImageProcess(cv::Mat &img, double /*img_stamp*/) {
             shoot_info.projectile_num = 3;
             shoot_pub_->publish(shoot_info);
         }
-        RCLCPP_INFO(nh_->get_logger(), "taskImageProcess():find." );
+        RCLCPP_INFO(nh_->get_logger(), "find target!" );
         cout << position << endl;
     }else{
-        //auto_aim_info.result_code = 0x00;
-        RCLCPP_INFO(nh_->get_logger(), "not find target!!!!!!");//表示没有发现目标
-        // ROS_INFO("");
+        RCLCPP_INFO(nh_->get_logger(), "not find target!");//表示没有发现目标
     }
-    //autoaim_info_pub_.publish(auto_aim_info);
 }
 
 bool TaskAutoAim::setModeCallBack(
     const std::shared_ptr<rm_interfaces::srv::SetMode::Request> request,
     std::shared_ptr<rm_interfaces::srv::SetMode::Response> response) {
-    // 0x00,休眠模式，0x01:自动射击模式，0x02：自动瞄准模式（不发子弹）,0x03,记录模式,不控制.
+    // 0x00,休眠模式，0x01:自动射击模式，0x02：自动瞄准模式（不发子弹）,0x03,测试模式,不控制.
+    // 0x10,设置目标为红色，0x11,设置目标为蓝色
     response->success=true;
     if (request->mode == 0x00) {
         stopTask();
@@ -102,9 +99,13 @@ bool TaskAutoAim::setModeCallBack(
         gimbal_ctrl_flag_ = false;
         shoot_ctrl_flag_ = false;
     } else if (request->mode == 0x10) {             
-        // color config
-        //auto_aim_algo_.setTargetColor(true);   // target is red
-        //ROS_INFO("[task_auto_aim]change target color <red>");
+        //red color config 
+        auto_aim_algo_.setTargetColor(true);  
+        RCLCPP_INFO(nh_->get_logger(), "set target color red" );
+    } else if (request->mode == 0x11) {
+        //blue color config
+        auto_aim_algo_.setTargetColor(false);    
+        RCLCPP_INFO(nh_->get_logger(), "set target color blue" );
     }else{
         response->success = false;
     }
