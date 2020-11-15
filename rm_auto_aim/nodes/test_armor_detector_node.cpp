@@ -11,7 +11,7 @@
 #include <rclcpp/rclcpp.hpp>
 #include <opencv2/opencv.hpp>
 #include "rm_auto_aim/armor_detector.hpp"
-#include "rm_tool/debug_tool.hpp"
+#include "rm_common/debug.hpp"
 
 using namespace rm_auto_aim;
 using namespace cv;
@@ -31,11 +31,11 @@ int main(int argc, char *argv[])
     armor_detector.setTargetColor(true);
     armor_detector.process(img);
     auto results = armor_detector.getArmorVector();
-    rm_tool::DebugTool::is_debug = true;
+    rm_common::setDebug(true);;
     if (results.size() != 0)
     {
         for(auto result : results){
-            rm_tool::DebugTool::draw4Point4f(img, result.points);
+            rm_common::draw4Point4f(img, result.points);
         }
         imshow("result", img);
         //wait to exit

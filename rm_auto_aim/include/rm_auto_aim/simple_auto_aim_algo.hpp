@@ -13,7 +13,7 @@
 #include <string>
 #include <opencv2/opencv.hpp>
 #include "rm_auto_aim/armor_detector.hpp"
-#include "rm_tool/mono_measure_tool.hpp"
+#include "rm_common/mono_measure_tool.hpp"
 
 namespace rm_auto_aim{
    //自瞄算法封装。 
@@ -40,7 +40,7 @@ namespace rm_auto_aim{
     private:
        //工具类
        ArmorDetector armor_detector_; 
-       rm_tool::MonoMeasureTool mono_location_tool_;
+       rm_common::MonoMeasureTool mono_location_tool_;
        //固定参数
        std::vector<cv::Point3f> mSmallArmorPoints; //小装甲板三维点
        std::vector<cv::Point3f> mBigArmorPoints; //大装甲板三维点

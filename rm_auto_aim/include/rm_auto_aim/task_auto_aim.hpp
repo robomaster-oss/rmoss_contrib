@@ -15,7 +15,7 @@
 #include <opencv2/opencv.hpp>
 #include "rm_task/task_image_proc.hpp"
 #include "rm_auto_aim/simple_auto_aim_algo.hpp"
-#include "rm_projectile_motion/projectile_transform_tool.hpp"
+#include "rm_projectile_motion/gimbal_transform_tool.hpp"
 
 #include "rm_interfaces/msg/gimbal_control.hpp" 
 #include "rm_interfaces/msg/shoot_control.hpp" 
@@ -38,7 +38,7 @@ class TaskAutoAim : public rm_task::TaskImageProc {
         //algo tool//自瞄算法类
         SimpleAutoAimAlgo auto_aim_algo_; 
         //坐标变换工具类
-        rm_projectile_motion::ProjectileTransformTool projectile_tansform_tool_;
+        rm_projectile_motion::GimbalTransformTool projectile_tansform_tool_;
         // ros pub
         rclcpp::Publisher<rm_interfaces::msg::GimbalControl>::SharedPtr gimbal_ctrl_pub_;
         rclcpp::Publisher<rm_interfaces::msg::ShootControl>::SharedPtr shoot_pub_;

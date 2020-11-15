@@ -9,11 +9,9 @@
  *
  ******************************************************************************/
 #include "rm_auto_aim/simple_auto_aim_algo.hpp"
-#include "rm_tool/image_tool.hpp"
 
 using namespace std;
 using namespace cv;
-using namespace rm_tool;
 using namespace rm_auto_aim;
 
 SimpleAutoAimAlgo::SimpleAutoAimAlgo()
@@ -44,7 +42,7 @@ int SimpleAutoAimAlgo::init(std::vector<double> camera_intrinsic, std::vector<do
 {
    //初始化工具类
    armor_detector_.setTargetColor(true);
-   mono_location_tool_.init(camera_intrinsic, camera_distortion);
+   mono_location_tool_.setCameraInfo(camera_intrinsic, camera_distortion);
    return 0;
 }
 
@@ -74,15 +72,15 @@ int SimpleAutoAimAlgo::process(cv::Mat img, float current_pitch)
          points.push_back(armor_descriptors[i].points[k]);
       }
       mono_location_tool_.solvePnP4Points(points, mSmallArmorPoints, armor_target.postion);
-      armor_target.move2dCast = ImageTool::calc2PointDistance(armor_descriptors[i].centerPoint, imgCenterPoint); //记录图像距离代价
+      armor_target.move2dCast = cv::norm(armor_descriptors[i].centerPoint- imgCenterPoint); //记录图像距离代价
       if (mIsTrack)
       {
-         armor_target.track2dCast = ImageTool::calc2PointDistance(armor_descriptors[i].centerPoint, mLastPoint2); //记录图像距离代价
-         armor_target.track3dCast = ImageTool::calc2PointDistance(armor_target.postion, mLastPoint3);             //记录图像距离代价
+         armor_target.track2dCast = cv::norm(armor_descriptors[i].centerPoint- mLastPoint2); //记录图像距离代价
+         armor_target.track3dCast = cv::norm(armor_target.postion- mLastPoint3);             //记录图像距离代价
       }
       //filter by height
       float cam_pitch, cam_yaw;
-      mono_location_tool_.imagePoint2ViewAngle(armor_target.armorDescriptor.centerPoint, cam_pitch, cam_yaw);
+      mono_location_tool_.calcViewAngle(armor_target.armorDescriptor.centerPoint, cam_pitch, cam_yaw);
       float theta_w = cam_pitch + current_pitch;
       float distance_yz = sqrt(armor_target.postion.y * armor_target.postion.y + armor_target.postion.z * armor_target.postion.z);
       float height = -distance_yz * sin(theta_w);

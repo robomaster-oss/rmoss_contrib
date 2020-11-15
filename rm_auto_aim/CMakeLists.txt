@@ -12,7 +12,7 @@ endif()
 # Find package
 find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
-find_package(rm_tool REQUIRED)
+find_package(rm_common REQUIRED)
 find_package(rm_task REQUIRED)
 find_package(rm_interfaces REQUIRED)
 find_package(rm_projectile_motion REQUIRED)
@@ -26,7 +26,7 @@ AUX_SOURCE_DIRECTORY(${PROJECT_SOURCE_DIR}/src DIR_SRCS)
 add_library(${PROJECT_NAME} ${DIR_SRCS})
 ament_target_dependencies(${PROJECT_NAME}
     rclcpp 
-    rm_tool
+    rm_common
     rm_task
     rm_interfaces
     rm_projectile_motion
@@ -71,7 +71,7 @@ install(PROGRAMS
 #export rm_auto_aim dependency
 ament_export_targets(${PROJECT_NAME} HAS_LIBRARY_TARGET)
 ament_export_dependencies(rclcpp)
-ament_export_dependencies(rm_tool)
+ament_export_dependencies(rm_common)
 ament_export_dependencies(rm_task)
 ament_export_dependencies(rm_interfaces)
 ament_export_dependencies(rm_projectile_motion)

@@ -40,7 +40,7 @@ TaskAutoAim::TaskAutoAim(rclcpp::Node::SharedPtr &nh):
     auto_aim_algo_.init(camera_intrinsic,camera_distortion);
     //set target blue
     auto_aim_algo_.setTargetColor(false);
-    projectile_tansform_tool_.setModel(NULL);
+    projectile_tansform_tool_.setProjectileModel(NULL);
     RCLCPP_INFO(nh_->get_logger(), "init!");
 }
 
