@@ -62,7 +62,11 @@ install(TARGETS task_power_rune
   DESTINATION lib/${PROJECT_NAME}
 )
 
-
+# Install executable scripts
+install(PROGRAMS 
+        scripts/client.py
+    DESTINATION lib/${PROJECT_NAME})
+    
 #export rm_auto_aim dependency
 ament_export_targets(${PROJECT_NAME} HAS_LIBRARY_TARGET)
 ament_export_dependencies(rclcpp)

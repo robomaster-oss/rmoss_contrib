@@ -31,13 +31,15 @@ rm_power_rune2019是rmoss_contrib 中的一个功能包，为RoboMaster2019赛�
 
 * script文件
 
-|          文件           |             功能描述             |
-| :---------------------: | :------------------------------: |
-| client_test.cpp（TODO） | 设置能量机关状态（开始，暂停等） |
+|       文件        |             功能描述             |
+| :---------------: | :------------------------------: |
+| scripts/client.py | 设置能量机关状态（开始，暂停等） |
 
 ## 3.快速使用
 
-#### 能量机关测试（视频模拟相机）
+#### 大能量机关测试（视频模拟相机）
+
+> 目前不支持小能量机关
 
 修改launch文件:launch/large_power_rune_test.launch
 
@@ -62,13 +64,25 @@ ros2 run rqt_image_view rqt_image_view
 
 ![](doc/imgs/power_rune.png)
 
+使用client.py启动自瞄任务
+
+```bash
+ros2 run rm_power_rune2019 client.py
+```
+
+* 按`e`启动大能量机关，按`q`暂停
+
 debug信息（图像处理中间过程信息）
 
 ![](doc/imgs/power_rune_result.png)
 
-#### 能量机关测试（TODO）
+若想取消图像debug信息，可以修改配置文件res/task_power_rune_config.yaml
 
-#### Rviz可视化打击点
+```yaml
+is_debug : False
+```
+
+#### Rviz可视化打击点（TODO）
 
 ![](doc/imgs/power_rune_rviz.png)
 
@@ -81,6 +95,6 @@ debug信息（图像处理中间过程信息）
 
 ### 5.维护者及开源许可证
 
-* gezp zhenpeng.ge@qq.com
+* Zhenpeng Ge,  zhenpeng.ge@qq.com
 
 * rm_power_rune2019 is provided under MIT.

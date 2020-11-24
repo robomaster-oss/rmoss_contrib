@@ -64,7 +64,7 @@ install(TARGETS task_auto_aim test_armor_detector
 
 # Install executable scripts
 install(PROGRAMS 
-        scripts/client_test.py
+        scripts/client.py
     DESTINATION lib/${PROJECT_NAME})
 
 

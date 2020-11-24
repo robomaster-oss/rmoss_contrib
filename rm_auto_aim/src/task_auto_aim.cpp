@@ -25,10 +25,10 @@ TaskAutoAim::TaskAutoAim(rclcpp::Node::SharedPtr &nh):
     nh_->declare_parameter("camera_intrinsic");
     nh_->declare_parameter("camera_distortion");
     //create pub,sub,srv
-    gimbal_ctrl_pub_ =  nh_->create_publisher<rm_interfaces::msg::GimbalControl>("gimbal_control", 10); 
-    shoot_pub_ = nh_->create_publisher<rm_interfaces::msg::ShootControl>("shoot_control", 10); 
-    state_info_sub_ =nh_->create_subscription<rm_interfaces::msg::StdBotState>(          // CHANGE
-          "state_info", 10, std::bind(&TaskAutoAim::robotStateCallback, this, std::placeholders::_1));
+    cmd_gimbal_pub_ =  nh_->create_publisher<rm_interfaces::msg::GimbalCmd>("cmd_gimbal", 10); 
+    cmd_shoot_pub_ = nh_->create_publisher<rm_interfaces::msg::ShootCmd>("cmd_shoot", 10); 
+    robot_state_sub_ =nh_->create_subscription<rm_interfaces::msg::StdRobotState>(          // CHANGE
+          "robot_state", 10, std::bind(&TaskAutoAim::robotStateCallback, this, std::placeholders::_1));
     set_mode_srv_ = nh_->create_service<rm_interfaces::srv::SetMode>("task_auto_aim/set_mode",
                          std::bind(&TaskAutoAim::setModeCallBack, this, std::placeholders::_1,std::placeholders::_2));
     //get param
@@ -48,7 +48,7 @@ TaskAutoAim::~TaskAutoAim() {}
 
 void TaskAutoAim::taskImageProcess(cv::Mat &img, double /*img_stamp*/) {
     int ret;
-    ret = auto_aim_algo_.process(img,pitch_info_);
+    ret = auto_aim_algo_.process(img,current_pitch_);
     if (ret == 0) {
         ArmorTarget target = auto_aim_algo_.getTarget();
         Point3f position = target.postion / 100;
@@ -59,17 +59,17 @@ void TaskAutoAim::taskImageProcess(cv::Mat &img, double /*img_stamp*/) {
         }
         //发布云台控制topic
         if (gimbal_ctrl_flag_) {
-            rm_interfaces::msg::GimbalControl gimbal_info;
-            gimbal_info.type = 0x00;
-            gimbal_info.position.pitch = pitch;
-            gimbal_info.position.yaw = yaw;
-            gimbal_ctrl_pub_->publish(gimbal_info);
+            rm_interfaces::msg::GimbalCmd gimbal_cmd;
+            gimbal_cmd.type = 0x00;
+            gimbal_cmd.position.pitch = pitch;
+            gimbal_cmd.position.yaw = yaw;
+            cmd_gimbal_pub_->publish(gimbal_cmd);
         }
         //发射子弹
         if (shoot_ctrl_flag_) {
-            rm_interfaces::msg::ShootControl shoot_info;
-            shoot_info.projectile_num = 3;
-            shoot_pub_->publish(shoot_info);
+            rm_interfaces::msg::ShootCmd shoot_cmd;
+            shoot_cmd.projectile_num = 3;
+            cmd_shoot_pub_->publish(shoot_cmd);
         }
         RCLCPP_INFO(nh_->get_logger(), "find target!" );
         cout << position << endl;
@@ -112,6 +112,6 @@ bool TaskAutoAim::setModeCallBack(
     return true;
 }
 
-void TaskAutoAim::robotStateCallback(const rm_interfaces::msg::StdBotState::SharedPtr msg){
-    pitch_info_ = msg->gimbal.pitch;
+void TaskAutoAim::robotStateCallback(const rm_interfaces::msg::StdRobotState::SharedPtr msg){
+    current_pitch_ = msg->gimbal_pos.pitch;
 }

@@ -14,9 +14,9 @@
 #include <opencv2/opencv.hpp>
 #include <rclcpp/rclcpp.hpp>
 
-#include "rm_interfaces/msg/gimbal_control.hpp"
-#include "rm_interfaces/msg/shoot_control.hpp"
-#include "rm_interfaces/msg/std_bot_state.hpp"
+#include "rm_interfaces/msg/gimbal_cmd.hpp"
+#include "rm_interfaces/msg/shoot_cmd.hpp"
+#include "rm_interfaces/msg/std_robot_state.hpp"
 #include "rm_interfaces/srv/set_mode.hpp"
 #include "rm_power_rune2019/simple_power_rune_algo.hpp"
 #include "rm_projectile_motion/gimbal_transform_tool.hpp"
@@ -36,15 +36,15 @@ class TaskPowerRune : public rm_task::TaskImageProc {
    private:
     bool setModeCallBack(const std::shared_ptr<rm_interfaces::srv::SetMode::Request> request,
                          std::shared_ptr<rm_interfaces::srv::SetMode::Response> response);
-    void robotStateCallback(const rm_interfaces::msg::StdBotState::SharedPtr msg);
+    void robotStateCallback(const rm_interfaces::msg::StdRobotState::SharedPtr msg);
     void taskImageProcess(cv::Mat& img, double img_stamp);
 
    private:
     ////ros2 node and communcation
     rclcpp::Node::SharedPtr nh_;
-    rclcpp::Publisher<rm_interfaces::msg::GimbalControl>::SharedPtr gimbal_ctrl_pub_;
-    rclcpp::Publisher<rm_interfaces::msg::ShootControl>::SharedPtr shoot_pub_;
-    rclcpp::Subscription<rm_interfaces::msg::StdBotState>::SharedPtr state_info_sub_;
+    rclcpp::Publisher<rm_interfaces::msg::GimbalCmd>::SharedPtr gimbal_ctrl_pub_;
+    rclcpp::Publisher<rm_interfaces::msg::ShootCmd>::SharedPtr shoot_pub_;
+    rclcpp::Subscription<rm_interfaces::msg::StdRobotState>::SharedPtr robot_state_sub_;
     rclcpp::Service<rm_interfaces::srv::SetMode>::SharedPtr set_mode_srv_;
     ////tool
     std::shared_ptr<SimplePowerRuneAlgo> power_rune_algo_;
@@ -55,8 +55,10 @@ class TaskPowerRune : public rm_task::TaskImageProc {
     float offset_pitch_;        // pitch轴偏移量
     float offset_yaw_;          // yaw轴偏移量
     // tmp data
-    bool is_need_clear_;
-    TaskMode current_mode_;
+    float current_pitch_;
+    bool is_need_clear_{false};
+    bool is_need_reshoot_{false};
+    TaskMode current_mode_{TaskMode::idle};
 };
 }  // namespace rm_power_rune2019
 

@@ -5,10 +5,12 @@ import sys, select, tty, termios
 from rm_interfaces.srv import SetMode
 
 msg = """
-task_auto_aim client test
+task_power_rune2019 client
 Please input keys:
 ---------------------------
-q,休眠模式，w:自动射击模式，e：自动瞄准模式（不发子弹）,r,测试模式,不控制.
+q,休眠模式，w:小能量机关，e：大能量机关
+
+r : 重新射击
 ---------------------------
 （TODO）a:change to red color , s:change to blue color
 ---------------------------
@@ -22,8 +24,8 @@ def set_mode_req(cli, mode):
 
 def main(args=None):
     rclpy.init(args=args)
-    node = Node("task_auto_aim_client_test")
-    cli = node.create_client(SetMode, "task_auto_aim/set_mode")
+    node = Node("task_power_rune2019_client")
+    cli = node.create_client(SetMode, "task_power_rune/set_mode")
     while not cli.wait_for_service(timeout_sec=1.0):
         node.get_logger().info('service not available, waiting again...')
     print(msg)

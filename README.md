@@ -21,7 +21,7 @@ rmoss_contrib是RoboMaster OSS中的基础项目，为RoboMaster提供任务级�
 
 ## 2.维护者及开源许可证
 
-* gezp zhenpeng.ge@qq.com
+* Zhenpeng Ge,  zhenpeng.ge@qq.com
 
 * rmoss_contrib is provided under MIT.
 

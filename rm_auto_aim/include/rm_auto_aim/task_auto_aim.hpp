@@ -17,9 +17,9 @@
 #include "rm_auto_aim/simple_auto_aim_algo.hpp"
 #include "rm_projectile_motion/gimbal_transform_tool.hpp"
 
-#include "rm_interfaces/msg/gimbal_control.hpp" 
-#include "rm_interfaces/msg/shoot_control.hpp" 
-#include "rm_interfaces/msg/std_bot_state.hpp" 
+#include "rm_interfaces/msg/gimbal_cmd.hpp" 
+#include "rm_interfaces/msg/shoot_cmd.hpp" 
+#include "rm_interfaces/msg/std_robot_state.hpp" 
 #include "rm_interfaces/srv/set_mode.hpp" 
 
 namespace rm_auto_aim {
@@ -30,7 +30,7 @@ class TaskAutoAim : public rm_task::TaskImageProc {
     private:
         bool setModeCallBack(const std::shared_ptr<rm_interfaces::srv::SetMode::Request> request,
                 std::shared_ptr<rm_interfaces::srv::SetMode::Response> response) ;
-        void robotStateCallback(const rm_interfaces::msg::StdBotState::SharedPtr msg);
+        void robotStateCallback(const rm_interfaces::msg::StdRobotState::SharedPtr msg);
         void taskImageProcess(cv::Mat& img,double img_stamp);
     private:
         //
@@ -40,12 +40,11 @@ class TaskAutoAim : public rm_task::TaskImageProc {
         //坐标变换工具类
         rm_projectile_motion::GimbalTransformTool projectile_tansform_tool_;
         // ros pub
-        rclcpp::Publisher<rm_interfaces::msg::GimbalControl>::SharedPtr gimbal_ctrl_pub_;
-        rclcpp::Publisher<rm_interfaces::msg::ShootControl>::SharedPtr shoot_pub_;
+        rclcpp::Publisher<rm_interfaces::msg::GimbalCmd>::SharedPtr cmd_gimbal_pub_;
+        rclcpp::Publisher<rm_interfaces::msg::ShootCmd>::SharedPtr cmd_shoot_pub_;
         // ros sub
-        rclcpp::Subscription<rm_interfaces::msg::StdBotState>::SharedPtr state_info_sub_;
+        rclcpp::Subscription<rm_interfaces::msg::StdRobotState>::SharedPtr robot_state_sub_;
         // ros srv
-        // 0x00暂停，0x01,正常，0x02,不控制，0x03,控制不发子弹,0x10,更新颜色配置
         rclcpp::Service<rm_interfaces::srv::SetMode>::SharedPtr set_mode_srv_;
         //data
         // offset of cam-gimbal
@@ -55,10 +54,7 @@ class TaskAutoAim : public rm_task::TaskImageProc {
         // tmp data
         bool gimbal_ctrl_flag_;
         bool shoot_ctrl_flag_;
-        unsigned char task_mode_ = 0x03;
-        float pitch_info_;
-        float pitch_coeff_;
-        float yaw_coeff_;
+        float current_pitch_;
 };
 }  // namespace rm_auto_aim
 
