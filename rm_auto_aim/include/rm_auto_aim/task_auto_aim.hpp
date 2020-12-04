@@ -17,10 +17,10 @@
 #include "rm_auto_aim/simple_auto_aim_algo.hpp"
 #include "rm_projectile_motion/gimbal_transform_tool.hpp"
 
-#include "rm_interfaces/msg/gimbal_cmd.hpp" 
-#include "rm_interfaces/msg/shoot_cmd.hpp" 
-#include "rm_interfaces/msg/std_robot_state.hpp" 
-#include "rm_interfaces/srv/set_mode.hpp" 
+#include "rmoss_interfaces/msg/gimbal.hpp" 
+#include "rmoss_interfaces/msg/gimbal_cmd.hpp" 
+#include "rmoss_interfaces/msg/shoot_cmd.hpp" 
+#include "rmoss_interfaces/srv/set_mode.hpp" 
 
 namespace rm_auto_aim {
 class TaskAutoAim : public rm_task::TaskImageProc {
@@ -28,9 +28,9 @@ class TaskAutoAim : public rm_task::TaskImageProc {
         TaskAutoAim(rclcpp::Node::SharedPtr &nh);
         ~TaskAutoAim();
     private:
-        bool setModeCallBack(const std::shared_ptr<rm_interfaces::srv::SetMode::Request> request,
-                std::shared_ptr<rm_interfaces::srv::SetMode::Response> response) ;
-        void robotStateCallback(const rm_interfaces::msg::StdRobotState::SharedPtr msg);
+        bool setModeCallBack(const std::shared_ptr<rmoss_interfaces::srv::SetMode::Request> request,
+                std::shared_ptr<rmoss_interfaces::srv::SetMode::Response> response) ;
+        void gimbalStateCallback(const rmoss_interfaces::msg::Gimbal::SharedPtr msg);
         void taskImageProcess(cv::Mat& img,double img_stamp);
     private:
         //
@@ -40,12 +40,12 @@ class TaskAutoAim : public rm_task::TaskImageProc {
         //坐标变换工具类
         rm_projectile_motion::GimbalTransformTool projectile_tansform_tool_;
         // ros pub
-        rclcpp::Publisher<rm_interfaces::msg::GimbalCmd>::SharedPtr cmd_gimbal_pub_;
-        rclcpp::Publisher<rm_interfaces::msg::ShootCmd>::SharedPtr cmd_shoot_pub_;
+        rclcpp::Publisher<rmoss_interfaces::msg::GimbalCmd>::SharedPtr gimbal_cmd_pub_;
+        rclcpp::Publisher<rmoss_interfaces::msg::ShootCmd>::SharedPtr shoot_cmd_pub_;
         // ros sub
-        rclcpp::Subscription<rm_interfaces::msg::StdRobotState>::SharedPtr robot_state_sub_;
+        rclcpp::Subscription<rmoss_interfaces::msg::Gimbal>::SharedPtr gimbal_state_sub_;
         // ros srv
-        rclcpp::Service<rm_interfaces::srv::SetMode>::SharedPtr set_mode_srv_;
+        rclcpp::Service<rmoss_interfaces::srv::SetMode>::SharedPtr set_mode_srv_;
         //data
         // offset of cam-gimbal
         cv::Point3f offset_trans_; //云台相对于相机的坐标（直接测量获得），单位为cm

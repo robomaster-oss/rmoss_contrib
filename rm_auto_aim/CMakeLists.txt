@@ -14,7 +14,7 @@ find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(rm_common REQUIRED)
 find_package(rm_task REQUIRED)
-find_package(rm_interfaces REQUIRED)
+find_package(rmoss_interfaces REQUIRED)
 find_package(rm_projectile_motion REQUIRED)
 find_package(OpenCV REQUIRED)
 
@@ -28,7 +28,7 @@ ament_target_dependencies(${PROJECT_NAME}
     rclcpp 
     rm_common
     rm_task
-    rm_interfaces
+    rmoss_interfaces
     rm_projectile_motion
     OpenCV
 )
@@ -73,7 +73,7 @@ ament_export_targets(${PROJECT_NAME} HAS_LIBRARY_TARGET)
 ament_export_dependencies(rclcpp)
 ament_export_dependencies(rm_common)
 ament_export_dependencies(rm_task)
-ament_export_dependencies(rm_interfaces)
+ament_export_dependencies(rmoss_interfaces)
 ament_export_dependencies(rm_projectile_motion)
 ament_export_dependencies(OpenCV)
 

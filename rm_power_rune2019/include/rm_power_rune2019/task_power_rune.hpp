@@ -14,10 +14,10 @@
 #include <opencv2/opencv.hpp>
 #include <rclcpp/rclcpp.hpp>
 
-#include "rm_interfaces/msg/gimbal_cmd.hpp"
-#include "rm_interfaces/msg/shoot_cmd.hpp"
-#include "rm_interfaces/msg/std_robot_state.hpp"
-#include "rm_interfaces/srv/set_mode.hpp"
+#include "rmoss_interfaces/msg/gimbal_cmd.hpp"
+#include "rmoss_interfaces/msg/shoot_cmd.hpp"
+#include "rmoss_interfaces/msg/gimbal.hpp"
+#include "rmoss_interfaces/srv/set_mode.hpp"
 #include "rm_power_rune2019/simple_power_rune_algo.hpp"
 #include "rm_projectile_motion/gimbal_transform_tool.hpp"
 #include "rm_task/task_image_proc.hpp"
@@ -34,18 +34,18 @@ class TaskPowerRune : public rm_task::TaskImageProc {
     ~TaskPowerRune(){};
 
    private:
-    bool setModeCallBack(const std::shared_ptr<rm_interfaces::srv::SetMode::Request> request,
-                         std::shared_ptr<rm_interfaces::srv::SetMode::Response> response);
-    void robotStateCallback(const rm_interfaces::msg::StdRobotState::SharedPtr msg);
+    bool setModeCallBack(const std::shared_ptr<rmoss_interfaces::srv::SetMode::Request> request,
+                         std::shared_ptr<rmoss_interfaces::srv::SetMode::Response> response);
+    void gimbalStateCallback(const rmoss_interfaces::msg::Gimbal::SharedPtr msg);
     void taskImageProcess(cv::Mat& img, double img_stamp);
 
    private:
     ////ros2 node and communcation
     rclcpp::Node::SharedPtr nh_;
-    rclcpp::Publisher<rm_interfaces::msg::GimbalCmd>::SharedPtr gimbal_ctrl_pub_;
-    rclcpp::Publisher<rm_interfaces::msg::ShootCmd>::SharedPtr shoot_pub_;
-    rclcpp::Subscription<rm_interfaces::msg::StdRobotState>::SharedPtr robot_state_sub_;
-    rclcpp::Service<rm_interfaces::srv::SetMode>::SharedPtr set_mode_srv_;
+    rclcpp::Publisher<rmoss_interfaces::msg::GimbalCmd>::SharedPtr gimbal_ctrl_pub_;
+    rclcpp::Publisher<rmoss_interfaces::msg::ShootCmd>::SharedPtr shoot_pub_;
+    rclcpp::Subscription<rmoss_interfaces::msg::Gimbal>::SharedPtr gimbal_state_sub_;
+    rclcpp::Service<rmoss_interfaces::srv::SetMode>::SharedPtr set_mode_srv_;
     ////tool
     std::shared_ptr<SimplePowerRuneAlgo> power_rune_algo_;
     std::shared_ptr<rm_projectile_motion::GimbalTransformTool> projectile_tansform_tool_;

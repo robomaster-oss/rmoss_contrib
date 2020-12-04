@@ -1,15 +1,13 @@
 ![](rmoss_bg.png)
 RoboMasterOSS是一个面向RoboMaster的开源软件栈项目，目的是为RoboMaster机器人软件开发提供了一个快速的，灵活的开发工具，支持算法原型研究和robomaster比赛应用开发。
 
-* 更多内容详见[https://robomaster-oss.github.io](https://robomaster-oss.github.io)
+* 更多内容详见[https://robomaster-oss.github.io/rmoss_tutorials](https://robomaster-oss.github.io/rmoss_tutorials)
 
 # rmoss_contrib
 
-**正在开发中，部分功能不稳定。。。**
-
 rmoss_contrib是RoboMaster OSS中的基础项目，为RoboMaster提供任务级功能模块包，如自动瞄准模块，能量机关模块等
 
-* 依赖于rmoss_core
+* 依赖于rmoss_interfaces和rmoss_core
 * 目前仅支持ROS2 foxy版本
 
 ## 1.主要模块
