@@ -66,7 +66,7 @@ int SimplePowerRuneAlgo::process4large(cv::Mat& img)
     for (size_t i = 0; i < armors.size(); i++) {
         rm_common::draw4Point4f(roi_img, armors[i].points);
     }
-    DEBUG_TOOL(imshow("result", roi_img));
+    RM_DEBUG(imshow("result", roi_img));
     // update FMS of power rune
     auto code = rune_state_machine_.update(armors);
     if (code == FmsResultCode::wait0) {
@@ -96,14 +96,14 @@ int SimplePowerRuneAlgo::process4large(cv::Mat& img)
     rune_detector_.printArmorDescriptor(armor);
     printf("target point:(%f,%f,%f)..predict point(%f,%f,%f)\n", position.x, position.y, position.z, target_.x, target_.y, target_.z);
     //for prediction circle
-    DEBUG_TOOL(cv::circle(roi_img, rune_center_, rune_radius_,cv::Scalar(0, 255, 0), 1, 8));
-    DEBUG_TOOL(cv::circle(roi_img, rune_center_, 5, cv::Scalar(0, 255, 0), -1, 8));
+    RM_DEBUG(cv::circle(roi_img, rune_center_, rune_radius_,cv::Scalar(0, 255, 0), 1, 8));
+    RM_DEBUG(cv::circle(roi_img, rune_center_, 5, cv::Scalar(0, 255, 0), -1, 8));
     //for target armor
-    DEBUG_TOOL(cv::circle(roi_img, armor.center, 5, rm_common::blue, -1, 8));
+    RM_DEBUG(cv::circle(roi_img, armor.center, 5, rm_common::blue, -1, 8));
     rm_common::draw4Point4f(roi_img, armor.points);
-    DEBUG_TOOL(cv::circle(roi_img, pred_point, 5, rm_common::red, -1, 8));
-    DEBUG_TOOL(imshow("shoot_result", roi_img));
-    DEBUG_TOOL(waitKey(1));
+    RM_DEBUG(cv::circle(roi_img, pred_point, 5, rm_common::red, -1, 8));
+    RM_DEBUG(imshow("shoot_result", roi_img));
+    RM_DEBUG(waitKey(1));
     return 0;
 }
 
@@ -121,7 +121,7 @@ int SimplePowerRuneAlgo::process4small(cv::Mat& img)
     for (size_t i = 0; i < armors.size(); i++) {
         rm_common::draw4Point4f(roi_img, armors[i].points);
     }
-    DEBUG_TOOL(imshow("result", roi_img));
+    RM_DEBUG(imshow("result", roi_img));
     // update FMS of power rune
     auto code = rune_state_machine_.update(armors);
     if (code != FmsResultCode::shoot) {
@@ -141,10 +141,10 @@ int SimplePowerRuneAlgo::process4small(cv::Mat& img)
     is_reshoot_ = false;
     // debug
     // rune_detector_.printArmorDescriptor(armor);
-    DEBUG_TOOL(cv::circle(roi_img, armor.center, 5, rm_common::blue, -1, 8));
+    RM_DEBUG(cv::circle(roi_img, armor.center, 5, rm_common::blue, -1, 8));
     rm_common::draw4Point4f(roi_img, armor.points);
-    DEBUG_TOOL(imshow("shoot_result", roi_img));
-    DEBUG_TOOL(waitKey(1));
+    RM_DEBUG(imshow("shoot_result", roi_img));
+    RM_DEBUG(waitKey(1));
 
     return 0;
 }

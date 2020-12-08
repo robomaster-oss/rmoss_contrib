@@ -35,9 +35,9 @@ int RuneDetector::preImg(Mat &src, Mat &dst) {
     img_b = bgr[0];
     img_g = bgr[1];
     img_r = bgr[2];
-    // DEBUG_TOOL(imshow("b",img_b));
-    // DEBUG_TOOL(imshow("g",img_g));
-    // DEBUG_TOOL(imshow("r",img_r));
+    // RM_DEBUG(imshow("b",img_b));
+    // RM_DEBUG(imshow("g",img_g));
+    // RM_DEBUG(imshow("r",img_r));
     //图像预处理
     Mat imgTargetGray, img_Blur, imgTargetThre;
     Mat img_color, img_bright;
@@ -53,7 +53,7 @@ int RuneDetector::preImg(Mat &src, Mat &dst) {
     Mat element = getStructuringElement(MORPH_ELLIPSE, Size(5, 5));
     dilate(imgTargetGray, img_color, element);
     threshold(img_color, img_color, 100, 255, THRESH_BINARY);
-    DEBUG_TOOL(imshow("color_dialte_thre", img_color));
+    RM_DEBUG(imshow("color_dialte_thre", img_color));
     //亮度区域
 
     Mat element1 = getStructuringElement(MORPH_ELLIPSE, Size(7, 7));
@@ -61,11 +61,11 @@ int RuneDetector::preImg(Mat &src, Mat &dst) {
                  element);  //先膨胀，再腐蚀，连接，抗锯齿，光滑
     GaussianBlur(img_bright, img_bright, Size(5, 5), 1);
     threshold(img_bright, img_bright, 128, 255, THRESH_BINARY);
-    DEBUG_TOOL(imshow("bright_thre", img_bright));
+    RM_DEBUG(imshow("bright_thre", img_bright));
     //逻辑与，求交集
     bitwise_and(img_color, img_bright, dst);
-    DEBUG_TOOL(imshow("dst", dst));
-    DEBUG_TOOL(waitKey(1));
+    RM_DEBUG(imshow("dst", dst));
+    RM_DEBUG(waitKey(1));
     return 0;
 }
 

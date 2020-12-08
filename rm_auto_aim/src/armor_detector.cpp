@@ -13,7 +13,7 @@
 
 #include <cmath>
 #include <rm_common/debug.hpp>
-#include <rm_common/definition.hpp>
+#include <rm_common/def.hpp>
 #include <rm_common/math.hpp>
 
 using namespace std;
@@ -32,9 +32,9 @@ int ArmorDetector::preImg(Mat src, Mat& dst)
     img_b = bgr[0];
     img_g = bgr[1];
     img_r = bgr[2];
-    //DEBUG_TOOL(imshow("b", img_b));
-    //DEBUG_TOOL(imshow("g", img_g));
-    //DEBUG_TOOL(imshow("r", img_r));
+    //RM_DEBUG(imshow("b", img_b));
+    //RM_DEBUG(imshow("g", img_g));
+    //RM_DEBUG(imshow("r", img_r));
     Mat imgTargetColor, imgBrightness;
     // default taget is red
     if (target_is_red_) {
@@ -48,14 +48,14 @@ int ArmorDetector::preImg(Mat src, Mat& dst)
     Mat element = getStructuringElement(MORPH_ELLIPSE, Size(7, 7));
     dilate(imgTargetColor, imgTargetColor, element);
     threshold(imgTargetColor, imgTargetColor, 72, 255, cv::THRESH_BINARY);
-    DEBUG_TOOL(imshow("target_dialte_thre", imgTargetColor));
+    RM_DEBUG(imshow("target_dialte_thre", imgTargetColor));
     //亮度区域
     GaussianBlur(imgBrightness, imgBrightness, Size(3, 3), 1);
     threshold(imgBrightness, imgBrightness, 150, 255, cv::THRESH_BINARY);
-    DEBUG_TOOL(imshow("bright_thre", imgBrightness));
+    RM_DEBUG(imshow("bright_thre", imgBrightness));
     //逻辑与，求交集
     bitwise_and(imgTargetColor, imgBrightness, dst);
-    DEBUG_TOOL(imshow("dst", dst));
+    RM_DEBUG(imshow("dst", dst));
     return 0;
 }
 
@@ -190,7 +190,7 @@ int ArmorDetector::process(cv::Mat img)
 {
     mLights.clear();
     mArmors.clear();
-    DEBUG_TOOL(waitKey(1));
+    RM_DEBUG(waitKey(1));
     //预处理
     Mat grayImg;
     preImg(img, grayImg);
@@ -215,7 +215,7 @@ int ArmorDetector::process(cv::Mat img)
     Mat drawing = Mat::zeros(img.size(), CV_8UC3);
     for (size_t i = 0; i < mLights.size(); i++)
         rm_common::drawRotatedRect(drawing, mLights[i].r);
-    DEBUG_TOOL(imshow("light", drawing));
+    RM_DEBUG(imshow("light", drawing));
     //赋予id
     for (size_t i = 0; i < mLights.size(); i++)
         mLights[i].id = i;
@@ -241,7 +241,7 @@ int ArmorDetector::process(cv::Mat img)
     for (size_t i = 0; i < mArmors.size(); i++) {
         rm_common::draw4Point4f(img, mArmors[i].points);
     }
-    DEBUG_TOOL(imshow("result", img));
+    RM_DEBUG(imshow("result", img));
     //返回处理结果
     return 0;
 }
