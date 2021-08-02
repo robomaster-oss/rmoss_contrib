@@ -8,7 +8,7 @@
  *  If not, see <https://opensource.org/licenses/MIT/>.
  *
  ******************************************************************************/
-#include "rm_auto_aim/task_auto_aim.hpp"
+#include "rm_auto_aim/auto_aim_server.hpp"
 
 using namespace cv;
 using namespace std;
@@ -16,8 +16,7 @@ using namespace rm_auto_aim;
 
 using std::placeholders::_1;
 
-TaskAutoAim::TaskAutoAim(rclcpp::Node::SharedPtr& nh)
-    : TaskImageProc(nh)
+AutoAimServer::AutoAimServer(rclcpp::Node::SharedPtr& nh)
 {
     gimbal_ctrl_flag_ = true;
     shoot_ctrl_flag_ = true;
@@ -29,14 +28,19 @@ TaskAutoAim::TaskAutoAim(rclcpp::Node::SharedPtr& nh)
     gimbal_cmd_pub_ = nh_->create_publisher<rmoss_interfaces::msg::GimbalCmd>("robot_base/gimbal_cmd", 10);
     shoot_cmd_pub_ = nh_->create_publisher<rmoss_interfaces::msg::ShootCmd>("robot_base/shoot_cmd", 10);
     gimbal_state_sub_ = nh_->create_subscription<rmoss_interfaces::msg::Gimbal>("robot_base/gimbal_state",
-        10, std::bind(&TaskAutoAim::gimbalStateCallback, this, std::placeholders::_1));
+        10, std::bind(&AutoAimServer::gimbalStateCallback, this, std::placeholders::_1));
     set_mode_srv_ = nh_->create_service<rmoss_interfaces::srv::SetMode>("task_auto_aim/set_mode",
-        std::bind(&TaskAutoAim::setModeCallBack, this, std::placeholders::_1, std::placeholders::_2));
+        std::bind(&AutoAimServer::setModeCallBack, this, std::placeholders::_1, std::placeholders::_2));
     //get param
     auto camera_intrinsic_param = nh_->get_parameter("camera_intrinsic");
     std::vector<double> camera_intrinsic = camera_intrinsic_param.as_double_array();
     auto camera_distortion_param = nh_->get_parameter("camera_distortion");
     std::vector<double> camera_distortion = camera_distortion_param.as_double_array();
+    //
+    std::string topic_name = nh_->declare_parameter("cam_topic_name", "camera/image_raw");
+    using namespace std::placeholders;
+    image_task_server_ = std::make_shared<rm_util::ImageTaskServer>(
+        nh_,topic_name,std::bind(&AutoAimServer::process_image, this,_1,_2));
     // init tool class
     auto_aim_algo_.init(camera_intrinsic, camera_distortion);
     //set target blue
@@ -45,9 +49,9 @@ TaskAutoAim::TaskAutoAim(rclcpp::Node::SharedPtr& nh)
     RCLCPP_INFO(nh_->get_logger(), "init!");
 }
 
-TaskAutoAim::~TaskAutoAim() { }
+AutoAimServer::~AutoAimServer() { }
 
-void TaskAutoAim::taskImageProcess(cv::Mat& img, double /*img_stamp*/)
+void AutoAimServer::process_image(cv::Mat& img, double /*img_stamp*/)
 {
     int ret;
     ret = auto_aim_algo_.process(img, current_pitch_);
@@ -80,7 +84,7 @@ void TaskAutoAim::taskImageProcess(cv::Mat& img, double /*img_stamp*/)
     }
 }
 
-bool TaskAutoAim::setModeCallBack(
+bool AutoAimServer::setModeCallBack(
     const std::shared_ptr<rmoss_interfaces::srv::SetMode::Request> request,
     std::shared_ptr<rmoss_interfaces::srv::SetMode::Response> response)
 {
@@ -88,17 +92,17 @@ bool TaskAutoAim::setModeCallBack(
     // 0x10,设置目标为红色，0x11,设置目标为蓝色
     response->success = true;
     if (request->mode == 0x00) {
-        stopTask();
+        image_task_server_->stop();
     } else if (request->mode == 0x01) {
-        startTask();
+        image_task_server_->start();
         gimbal_ctrl_flag_ = true;
         shoot_ctrl_flag_ = true;
     } else if (request->mode == 0x02) {
-        startTask();
+        image_task_server_->start();
         gimbal_ctrl_flag_ = true;
         shoot_ctrl_flag_ = false;
     } else if (request->mode == 0x03) {
-        startTask();
+        image_task_server_->start();
         gimbal_ctrl_flag_ = false;
         shoot_ctrl_flag_ = false;
     } else if (request->mode == 0x10) {
@@ -115,7 +119,7 @@ bool TaskAutoAim::setModeCallBack(
     return true;
 }
 
-void TaskAutoAim::gimbalStateCallback(const rmoss_interfaces::msg::Gimbal::SharedPtr msg)
+void AutoAimServer::gimbalStateCallback(const rmoss_interfaces::msg::Gimbal::SharedPtr msg)
 {
     current_pitch_ = msg->pitch;
 }

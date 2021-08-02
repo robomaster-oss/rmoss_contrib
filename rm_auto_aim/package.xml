@@ -13,13 +13,13 @@
 
   <build_depend>rclcpp</build_depend>
   <build_depend>rm_common</build_depend>
-  <build_depend>rm_task</build_depend>
+  <build_depend>rm_util</build_depend>
   <build_depend>rmoss_interfaces</build_depend>
   <build_depend>rm_projectile_motion</build_depend>
 
   <exec_depend>rclcpp</exec_depend>
   <exec_depend>rm_common</exec_depend>
-  <exec_depend>rm_task</exec_depend>
+  <exec_depend>rm_util</exec_depend>
   <build_depend>rmoss_interfaces</build_depend>
   <exec_depend>rm_projectile_motion</exec_depend>
 

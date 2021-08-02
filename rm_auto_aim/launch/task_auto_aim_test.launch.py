@@ -18,7 +18,7 @@ def generate_launch_description():
     )
     #task auto aim node
     auto_aim_params_file = os.path.join(get_package_share_directory('rm_auto_aim'),'res/task_auto_aim_config.yaml')
-    auto_aim_node=Node(package='rm_auto_aim',executable='task_auto_aim',name="task_auto_aim",
+    auto_aim_node=Node(package='rm_auto_aim',executable='auto_aim_server',
             parameters=[
                 {'cam_topic_name': 'virtual_cam/image_raw'},
                 auto_aim_params_file

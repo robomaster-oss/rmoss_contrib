@@ -2,7 +2,7 @@
 import rclpy
 from rclpy.node import Node
 import sys, select, tty, termios
-from rm_interfaces.srv import SetMode
+from rmoss_interfaces.srv import SetMode
 
 msg = """
 task_auto_aim client test

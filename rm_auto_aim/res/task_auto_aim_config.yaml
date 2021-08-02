@@ -1,4 +1,4 @@
-task_auto_aim:
+auto_aim_server:
     ros__parameters:
         is_debug: True
         camera_intrinsic: [1552.7, 0.0, 640.0, 0.0, 1537.9, 360.0, 0.0, 0.0, 1.0]

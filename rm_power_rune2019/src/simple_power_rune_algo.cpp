@@ -9,13 +9,13 @@
  *
  ******************************************************************************/
 #include "rm_power_rune2019/simple_power_rune_algo.hpp"
-#include "rm_common/debug.hpp"
+#include "rm_util/debug.hpp"
 
 using namespace std;
 using namespace cv;
 using namespace rm_power_rune2019;
 
-SimplePowerRuneAlgo::SimplePowerRuneAlgo(std::shared_ptr<rm_common::MonoMeasureTool> mono_location_tool)
+SimplePowerRuneAlgo::SimplePowerRuneAlgo(std::shared_ptr<rm_util::MonoMeasureTool> mono_location_tool)
 {
     //装甲板参数
     float realWidth, realHeight, half_x, half_y;
@@ -64,7 +64,7 @@ int SimplePowerRuneAlgo::process4large(cv::Mat& img)
     }
     //debug info
     for (size_t i = 0; i < armors.size(); i++) {
-        rm_common::draw4Point4f(roi_img, armors[i].points);
+        RM_DEBUG(rm_util::draw4Point4f(roi_img, armors[i].points));
     }
     RM_DEBUG(imshow("result", roi_img));
     // update FMS of power rune
@@ -99,9 +99,9 @@ int SimplePowerRuneAlgo::process4large(cv::Mat& img)
     RM_DEBUG(cv::circle(roi_img, rune_center_, rune_radius_,cv::Scalar(0, 255, 0), 1, 8));
     RM_DEBUG(cv::circle(roi_img, rune_center_, 5, cv::Scalar(0, 255, 0), -1, 8));
     //for target armor
-    RM_DEBUG(cv::circle(roi_img, armor.center, 5, rm_common::blue, -1, 8));
-    rm_common::draw4Point4f(roi_img, armor.points);
-    RM_DEBUG(cv::circle(roi_img, pred_point, 5, rm_common::red, -1, 8));
+    RM_DEBUG(cv::circle(roi_img, armor.center, 5, rm_util::blue, -1, 8));
+    RM_DEBUG(rm_util::draw4Point4f(roi_img, armor.points));
+    RM_DEBUG(cv::circle(roi_img, pred_point, 5, rm_util::red, -1, 8));
     RM_DEBUG(imshow("shoot_result", roi_img));
     RM_DEBUG(waitKey(1));
     return 0;
@@ -119,7 +119,7 @@ int SimplePowerRuneAlgo::process4small(cv::Mat& img)
     std::vector<ArmorDescriptor> armors = rune_detector_.getAllArmors();
     //img debug
     for (size_t i = 0; i < armors.size(); i++) {
-        rm_common::draw4Point4f(roi_img, armors[i].points);
+        RM_DEBUG(rm_util::draw4Point4f(roi_img, armors[i].points));
     }
     RM_DEBUG(imshow("result", roi_img));
     // update FMS of power rune
@@ -141,8 +141,8 @@ int SimplePowerRuneAlgo::process4small(cv::Mat& img)
     is_reshoot_ = false;
     // debug
     // rune_detector_.printArmorDescriptor(armor);
-    RM_DEBUG(cv::circle(roi_img, armor.center, 5, rm_common::blue, -1, 8));
-    rm_common::draw4Point4f(roi_img, armor.points);
+    RM_DEBUG(cv::circle(roi_img, armor.center, 5, rm_util::blue, -1, 8));
+    RM_DEBUG(rm_util::draw4Point4f(roi_img, armor.points));
     RM_DEBUG(imshow("shoot_result", roi_img));
     RM_DEBUG(waitKey(1));
 

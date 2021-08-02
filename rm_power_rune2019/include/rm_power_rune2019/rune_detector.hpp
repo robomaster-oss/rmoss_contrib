@@ -13,7 +13,7 @@
 
 #include <string>
 #include "opencv2/opencv.hpp"
-#include "rm_power_rune2019/rune_def.hpp"
+#include "rm_power_rune2019/rune_types.hpp"
 
 namespace rm_power_rune2019
 {

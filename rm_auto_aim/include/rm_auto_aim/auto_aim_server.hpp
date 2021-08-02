@@ -13,7 +13,7 @@
 
 #include <rclcpp/rclcpp.hpp>
 #include <opencv2/opencv.hpp>
-#include "rm_task/task_image_proc.hpp"
+#include "rm_util/image_task_server.hpp"
 #include "rm_auto_aim/simple_auto_aim_algo.hpp"
 #include "rm_projectile_motion/gimbal_transform_tool.hpp"
 
@@ -23,11 +23,12 @@
 #include "rmoss_interfaces/srv/set_mode.hpp" 
 
 namespace rm_auto_aim {
-class TaskAutoAim : public rm_task::TaskImageProc {
+class AutoAimServer{
     public:
-        TaskAutoAim(rclcpp::Node::SharedPtr &nh);
-        ~TaskAutoAim();
+        AutoAimServer(rclcpp::Node::SharedPtr &nh);
+        ~AutoAimServer();
     private:
+        void process_image(cv::Mat& img, double img_stamp);
         bool setModeCallBack(const std::shared_ptr<rmoss_interfaces::srv::SetMode::Request> request,
                 std::shared_ptr<rmoss_interfaces::srv::SetMode::Response> response) ;
         void gimbalStateCallback(const rmoss_interfaces::msg::Gimbal::SharedPtr msg);
@@ -35,7 +36,9 @@ class TaskAutoAim : public rm_task::TaskImageProc {
     private:
         //
         rclcpp::Node::SharedPtr nh_;
-        //algo tool//自瞄算法类
+        //
+        std::shared_ptr<rm_util::ImageTaskServer> image_task_server_;
+        //自瞄算法类
         SimpleAutoAimAlgo auto_aim_algo_; 
         //坐标变换工具类
         rm_projectile_motion::GimbalTransformTool projectile_tansform_tool_;

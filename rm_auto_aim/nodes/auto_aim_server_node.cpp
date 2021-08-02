@@ -8,9 +8,10 @@
  *  If not, see <https://opensource.org/licenses/MIT/>.
  *
  ******************************************************************************/
-#include "rm_auto_aim/task_auto_aim.hpp"
-#include "rm_common/debug.hpp"
 #include <rclcpp/rclcpp.hpp>
+#include "rm_auto_aim/auto_aim_server.hpp"
+#include "rm_util/debug.hpp"
+
 
 using namespace rm_auto_aim;
 
@@ -18,12 +19,12 @@ int main(int argc, char* argv[])
 {
     //creat ros2 node
     rclcpp::init(argc, argv);
-    auto node = std::make_shared<rclcpp::Node>("task_auto_aim");
+    auto node = std::make_shared<rclcpp::Node>("auto_aim_server");
     //set debug
     auto is_debug = node->declare_parameter("is_debug", false);
-    rm_common::setDebug(is_debug);
+    rm_util::setDebug(is_debug);
     // create task
-    auto task = std::make_shared<TaskAutoAim>(node);
+    auto task = std::make_shared<AutoAimServer>(node);
     // run node until it's exited
     rclcpp::spin(node);
     //clean up

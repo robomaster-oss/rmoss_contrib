@@ -13,8 +13,7 @@ endif()
 find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(rmoss_interfaces REQUIRED)
-find_package(rm_common REQUIRED)
-find_package(rm_task REQUIRED)
+find_package(rm_util REQUIRED)
 find_package(rm_projectile_motion REQUIRED)
 find_package(OpenCV REQUIRED)
 
@@ -27,15 +26,14 @@ add_library(${PROJECT_NAME} ${DIR_SRCS})
 ament_target_dependencies(${PROJECT_NAME}
     rclcpp 
     rmoss_interfaces
-    rm_common
-    rm_task
+    rm_util
     rm_projectile_motion
     OpenCV
 )
 
 # Create executable nodes
-add_executable(task_power_rune nodes/task_power_rune_node.cpp)
-target_link_libraries(task_power_rune ${PROJECT_NAME})
+add_executable(power_rune_server nodes/power_rune_server_node.cpp)
+target_link_libraries(power_rune_server ${PROJECT_NAME})
 
 
 # Install launch res directories
@@ -58,7 +56,7 @@ install(TARGETS ${PROJECT_NAME}
 )
 
 # Install executable nodes
-install(TARGETS task_power_rune 
+install(TARGETS power_rune_server 
   DESTINATION lib/${PROJECT_NAME}
 )
 
@@ -71,8 +69,7 @@ install(PROGRAMS
 ament_export_targets(${PROJECT_NAME} HAS_LIBRARY_TARGET)
 ament_export_dependencies(rclcpp)
 ament_export_dependencies(rmoss_interfaces)
-ament_export_dependencies(rm_common)
-ament_export_dependencies(rm_task)
+ament_export_dependencies(rm_util)
 ament_export_dependencies(rm_projectile_motion)
 ament_export_dependencies(OpenCV)
 

@@ -10,20 +10,20 @@
  ******************************************************************************/
 #include <rclcpp/rclcpp.hpp>
 
-#include "rm_power_rune2019/task_power_rune.hpp"
-#include "rm_common/debug.hpp"
+#include "rm_power_rune2019/power_rune_server.hpp"
+#include "rm_util/debug.hpp"
 
 using namespace rm_power_rune2019;
 
 int main(int argc, char *argv[]) {
     // creat ros2 node
     rclcpp::init(argc, argv);
-    auto node = std::make_shared<rclcpp::Node>("task_power_rune");
+    auto node = std::make_shared<rclcpp::Node>("power_rune_server");
     // set debug
     auto is_debug = node->declare_parameter("is_debug", false);
-    rm_common::setDebug(is_debug);
+    rm_util::setDebug(is_debug);
     // create task
-    auto task = std::make_shared<TaskPowerRune>(node);
+    auto task = std::make_shared<PowerRuneServer>(node);
     // run node until it's exited
     rclcpp::spin(node);
     // clean up

@@ -10,8 +10,8 @@
  ******************************************************************************/
 #include "rm_power_rune2019/rune_detector.hpp"
 
-#include "rm_common/debug.hpp"
-#include "rm_common/math.hpp"
+#include "rm_util/debug.hpp"
+#include "rm_util/math.hpp"
 
 using namespace std;
 using namespace cv;

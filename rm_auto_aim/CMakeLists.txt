@@ -12,8 +12,7 @@ endif()
 # Find package
 find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
-find_package(rm_common REQUIRED)
-find_package(rm_task REQUIRED)
+find_package(rm_util REQUIRED)
 find_package(rmoss_interfaces REQUIRED)
 find_package(rm_projectile_motion REQUIRED)
 find_package(OpenCV REQUIRED)
@@ -26,16 +25,15 @@ AUX_SOURCE_DIRECTORY(${PROJECT_SOURCE_DIR}/src DIR_SRCS)
 add_library(${PROJECT_NAME} ${DIR_SRCS})
 ament_target_dependencies(${PROJECT_NAME}
     rclcpp 
-    rm_common
-    rm_task
     rmoss_interfaces
+    rm_util
     rm_projectile_motion
     OpenCV
 )
 
 # Create executable nodes
-add_executable(task_auto_aim nodes/task_auto_aim_node.cpp)
-target_link_libraries(task_auto_aim ${PROJECT_NAME})
+add_executable(auto_aim_server nodes/auto_aim_server_node.cpp)
+target_link_libraries(auto_aim_server ${PROJECT_NAME})
 
 add_executable(test_armor_detector nodes/test_armor_detector_node.cpp)
 target_link_libraries(test_armor_detector ${PROJECT_NAME})
@@ -58,7 +56,7 @@ install(TARGETS ${PROJECT_NAME}
     INCLUDES DESTINATION include
 )
 # Install executable nodes
-install(TARGETS task_auto_aim test_armor_detector
+install(TARGETS auto_aim_server test_armor_detector
   DESTINATION lib/${PROJECT_NAME}
 )
 
@@ -71,9 +69,8 @@ install(PROGRAMS
 #export rm_auto_aim dependency
 ament_export_targets(${PROJECT_NAME} HAS_LIBRARY_TARGET)
 ament_export_dependencies(rclcpp)
-ament_export_dependencies(rm_common)
-ament_export_dependencies(rm_task)
 ament_export_dependencies(rmoss_interfaces)
+ament_export_dependencies(rm_util)
 ament_export_dependencies(rm_projectile_motion)
 ament_export_dependencies(OpenCV)
 

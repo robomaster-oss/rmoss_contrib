@@ -17,13 +17,13 @@
 #include "rm_power_rune2019/rune_detector.hpp"
 #include "rm_power_rune2019/rune_prediction_tool.hpp"
 #include "rm_power_rune2019/rune_state_machine.hpp"
-#include "rm_common/mono_measure_tool.hpp"
+#include "rm_util/mono_measure_tool.hpp"
 
 namespace rm_power_rune2019 {
 
 class SimplePowerRuneAlgo {
    public:
-    SimplePowerRuneAlgo(std::shared_ptr<rm_common::MonoMeasureTool> mono_location_tool);
+    SimplePowerRuneAlgo(std::shared_ptr<rm_util::MonoMeasureTool> mono_location_tool);
     ~SimplePowerRuneAlgo();
 
    public:
@@ -47,7 +47,7 @@ class SimplePowerRuneAlgo {
     // tool
     RuneDetector rune_detector_;
     RuneStateMachine rune_state_machine_;
-    std::shared_ptr<rm_common::MonoMeasureTool> mono_location_tool_;
+    std::shared_ptr<rm_util::MonoMeasureTool> mono_location_tool_;
     // const data
     cv::Rect roi_;
     cv::Point2f roi_offset_;

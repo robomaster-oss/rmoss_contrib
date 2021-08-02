@@ -8,8 +8,7 @@
  *  If not, see <https://opensource.org/licenses/MIT/>.
  *
  ******************************************************************************/
-#include "rm_power_rune2019/task_power_rune.hpp"
-
+#include "rm_power_rune2019/power_rune_server.hpp"
 #include "rm_projectile_motion/gravity_projectile_model.hpp"
 
 using namespace cv;
@@ -19,26 +18,24 @@ using namespace rm_power_rune2019;
 using std::placeholders::_1;
 
 //显式调用基类带参数构造函数
-TaskPowerRune::TaskPowerRune(rclcpp::Node::SharedPtr& nh)
-    : TaskImageProc(nh)
-{
-    nh_ = nh;
+PowerRuneServer::PowerRuneServer(rclcpp::Node::SharedPtr& node){
+    node_ = node;
     // init and get params
-    nh_->declare_parameter("camera_intrinsic");
-    nh_->declare_parameter("camera_distortion");
-    auto camera_intrinsic_param = nh_->get_parameter("camera_intrinsic");
+    node_->declare_parameter("camera_intrinsic");
+    node_->declare_parameter("camera_distortion");
+    auto camera_intrinsic_param = node_->get_parameter("camera_intrinsic");
     std::vector<double> camera_intrinsic = camera_intrinsic_param.as_double_array();
-    auto camera_distortion_param = nh_->get_parameter("camera_distortion");
+    auto camera_distortion_param = node_->get_parameter("camera_distortion");
     std::vector<double> camera_distortion = camera_distortion_param.as_double_array();
     // create pub,sub,srv
-    gimbal_ctrl_pub_ = nh_->create_publisher<rmoss_interfaces::msg::GimbalCmd>("robot_base/gimbal_cmd", 10);
-    shoot_pub_ = nh_->create_publisher<rmoss_interfaces::msg::ShootCmd>("robot_base/shoot_cmd", 10);
-    gimbal_state_sub_ = nh_->create_subscription<rmoss_interfaces::msg::Gimbal>("robot_base/gimbal_state", 10,
-        std::bind(&TaskPowerRune::gimbalStateCallback, this, std::placeholders::_1));
-    set_mode_srv_ = nh_->create_service<rmoss_interfaces::srv::SetMode>("task_power_rune/set_mode",
-        std::bind(&TaskPowerRune::setModeCallBack, this, std::placeholders::_1, std::placeholders::_2));
+    gimbal_ctrl_pub_ = node_->create_publisher<rmoss_interfaces::msg::GimbalCmd>("robot_base/gimbal_cmd", 10);
+    shoot_pub_ = node_->create_publisher<rmoss_interfaces::msg::ShootCmd>("robot_base/shoot_cmd", 10);
+    gimbal_state_sub_ = node_->create_subscription<rmoss_interfaces::msg::Gimbal>("robot_base/gimbal_state", 10,
+        std::bind(&PowerRuneServer::gimbalStateCallback, this, std::placeholders::_1));
+    set_mode_srv_ = node_->create_service<rmoss_interfaces::srv::SetMode>("task_power_rune/set_mode",
+        std::bind(&PowerRuneServer::setModeCallBack, this, std::placeholders::_1, std::placeholders::_2));
     // init algo tool
-    auto mono_location_tool = std::make_shared<rm_common::MonoMeasureTool>();
+    auto mono_location_tool = std::make_shared<rm_util::MonoMeasureTool>();
     mono_location_tool->setCameraInfo(camera_intrinsic, camera_distortion);
     power_rune_algo_ = std::make_shared<SimplePowerRuneAlgo>(mono_location_tool);
     power_rune_algo_->setTargetColor(ArmorColor::red);
@@ -47,13 +44,17 @@ TaskPowerRune::TaskPowerRune(rclcpp::Node::SharedPtr& nh)
     projectile_tansform_tool_ = std::make_shared<rm_projectile_motion::GimbalTransformTool>();
     projectile_tansform_tool_->setProjectileModel(projectile_model);
     //start task
-    startTask();
-    RCLCPP_INFO(nh_->get_logger(), "init successfully!");
+    std::string topic_name = node_->declare_parameter("cam_topic_name", "camera/image_raw");
+    using namespace std::placeholders;
+    image_task_server_ = std::make_shared<rm_util::ImageTaskServer>(
+        node_,topic_name,std::bind(&PowerRuneServer::process_image, this,_1,_2));
+    image_task_server_->start();
+    RCLCPP_INFO(node_->get_logger(), "init successfully!");
 }
 
-void TaskPowerRune::taskImageProcess(cv::Mat& img, double /*img_stamp*/)
+void PowerRuneServer::process_image(cv::Mat& img, double /*img_stamp*/)
 {
-    // RCLCPP_INFO(nh_->get_logger(), "stamp:%f",img_stamp);
+    // RCLCPP_INFO(node_->get_logger(), "stamp:%f",img_stamp);
     if (is_need_reshoot_) {
         power_rune_algo_->setReShoot();
         is_need_reshoot_ = false;
@@ -83,7 +84,7 @@ void TaskPowerRune::taskImageProcess(cv::Mat& img, double /*img_stamp*/)
     }
 }
 
-bool TaskPowerRune::setModeCallBack(
+bool PowerRuneServer::setModeCallBack(
     const std::shared_ptr<rmoss_interfaces::srv::SetMode::Request> request,
     std::shared_ptr<rmoss_interfaces::srv::SetMode::Response> response)
 {
@@ -91,14 +92,14 @@ bool TaskPowerRune::setModeCallBack(
 
     response->success = true;
     if (request->mode == 0x00) {
-        stopTask();
+        image_task_server_->stop();
         current_mode_ = TaskMode::idle;
     } else if (request->mode == 0x01) {
-        startTask();
+        image_task_server_->start();
         is_need_clear_ = true;
         current_mode_ = TaskMode::small;
     } else if (request->mode == 0x02) {
-        startTask();
+        image_task_server_->start();
         is_need_clear_ = true;
         current_mode_ = TaskMode::large;
     } else if (request->mode == 0x03) {
@@ -123,7 +124,7 @@ bool TaskPowerRune::setModeCallBack(
     return true;
 }
 
-void TaskPowerRune::gimbalStateCallback(const rmoss_interfaces::msg::Gimbal::SharedPtr msg)
+void PowerRuneServer::gimbalStateCallback(const rmoss_interfaces::msg::Gimbal::SharedPtr msg)
 {
     current_pitch_ = msg->pitch;
 }
