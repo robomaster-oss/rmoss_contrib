@@ -31,11 +31,11 @@ int main(int argc, char *argv[])
     armor_detector.setTargetColor(true);
     armor_detector.process(img);
     auto results = armor_detector.getArmorVector();
-    rm_util::setDebug(true);;
+    rm_util::set_debug(true);;
     if (results.size() != 0)
     {
         for(auto result : results){
-            RM_DEBUG(rm_util::draw4Point4f(img, result.points));
+            RM_DEBUG(rm_util::draw_4points(img, result.points));
         }
         imshow("result", img);
         //wait to exit

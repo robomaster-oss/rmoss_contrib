@@ -9,7 +9,7 @@
  *
  ******************************************************************************/
 #include "rm_power_rune2019/power_rune_server.hpp"
-#include "rm_projectile_motion/gravity_projectile_model.hpp"
+#include "rm_projectile_motion/gravity_projectile_solver.hpp"
 
 using namespace cv;
 using namespace std;
@@ -36,13 +36,13 @@ PowerRuneServer::PowerRuneServer(rclcpp::Node::SharedPtr& node){
         std::bind(&PowerRuneServer::setModeCallBack, this, std::placeholders::_1, std::placeholders::_2));
     // init algo tool
     auto mono_location_tool = std::make_shared<rm_util::MonoMeasureTool>();
-    mono_location_tool->setCameraInfo(camera_intrinsic, camera_distortion);
+    mono_location_tool->set_camera_info(camera_intrinsic, camera_distortion);
     power_rune_algo_ = std::make_shared<SimplePowerRuneAlgo>(mono_location_tool);
     power_rune_algo_->setTargetColor(ArmorColor::red);
     // init projectile tool
-    auto projectile_model = std::make_shared<rm_projectile_motion::GravityProjectileModel>(25);
+    auto projectile_model = std::make_shared<rm_projectile_motion::GravityProjectileSolver>(25);
     projectile_tansform_tool_ = std::make_shared<rm_projectile_motion::GimbalTransformTool>();
-    projectile_tansform_tool_->setProjectileModel(projectile_model);
+    projectile_tansform_tool_->set_projectile_solver(projectile_model);
     //start task
     std::string topic_name = node_->declare_parameter("cam_topic_name", "camera/image_raw");
     using namespace std::placeholders;

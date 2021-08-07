@@ -65,7 +65,7 @@ debug信息（图像处理中间过程信息/TODO）
 若想取消图像debug信息，可以修改配置文件res/task_auto_aim_config.yaml
 
 ```yaml
-is_debug : False
+get_debug : False
 ```
 
 ### 4.自瞄算法说明

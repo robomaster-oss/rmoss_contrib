@@ -113,8 +113,8 @@ int ArmorDetector::getLightDescriptor(cv::RotatedRect r,
         light.endPointYMin = endPoint1;
     }
     //求解灯条angel与x轴的夹角
-    light.lightAngle = rm_util::calcInclineAngle(light.endPointYMin, light.endPointYMax);
-
+    light.lightAngle = rm_util::calc_inclination_angle(light.endPointYMin, light.endPointYMax);
+    light.lightAngle = rm_util::rad_to_deg(light.lightAngle);
     if (abs(light.lightAngle - 90) > 45) {
         return 3; //灯条倾斜度不符合
     }
@@ -155,18 +155,19 @@ int ArmorDetector::lightsMatch(LightDescriptor l1, LightDescriptor l2,
 
     float innerAngle;
     if (armor.lightL.lightHight > armor.lightR.lightHight) {
-        innerAngle = rm_util::calcInnerAngle(armor.lightL.centerPoint,
-            armor.lightL.endPointYMin, armor.lightR.centerPoint); //取值0-180
+        innerAngle = rm_util::calc_inner_angle(armor.lightL.centerPoint,
+            armor.lightL.endPointYMin, armor.lightR.centerPoint);
     } else {
-        innerAngle = rm_util::calcInnerAngle(armor.lightR.centerPoint,
-            armor.lightR.endPointYMin, armor.lightL.centerPoint); //取值0-180
+        innerAngle = rm_util::calc_inner_angle(armor.lightR.centerPoint,
+            armor.lightR.endPointYMin, armor.lightL.centerPoint);
     }
-    armor.innerAngleErr = abs(innerAngle - 90);
+    armor.innerAngleErr = abs(rm_util::rad_to_deg(innerAngle) - 90);
     //条件3
     if (armor.innerAngleErr > 20) {
         return 3; //装甲板正度（矩形内角=90）不符合，否定
     }
-    armor.horizonLineAngle = rm_util::calcInclineAngle(armor.lightL.centerPoint, armor.lightR.centerPoint);
+    armor.horizonLineAngle = rm_util::calc_inclination_angle(armor.lightL.centerPoint, armor.lightR.centerPoint);
+    armor.horizonLineAngle = rm_util::rad_to_deg(armor.horizonLineAngle);
     //条件4
     if (abs(armor.horizonLineAngle - 90) < 60) {
         return 4; //装甲板倾斜不符合，否定
@@ -215,7 +216,7 @@ int ArmorDetector::process(cv::Mat img)
     // cout<<"light num:"<<mLights.size()<<endl;
     Mat drawing = Mat::zeros(img.size(), CV_8UC3);
     for (size_t i = 0; i < mLights.size(); i++){
-        RM_DEBUG(rm_util::drawRotatedRect(drawing, mLights[i].r));
+        RM_DEBUG(rm_util::draw_rotated_rect(drawing, mLights[i].r));
     }
     RM_DEBUG(imshow("light", drawing));
     //赋予id
@@ -241,7 +242,7 @@ int ArmorDetector::process(cv::Mat img)
         return 2;
     }
     for (size_t i = 0; i < mArmors.size(); i++) {
-        RM_DEBUG(rm_util::draw4Point4f(img, mArmors[i].points));
+        RM_DEBUG(rm_util::draw_4points(img, mArmors[i].points));
     }
     RM_DEBUG(imshow("result", img));
     //返回处理结果

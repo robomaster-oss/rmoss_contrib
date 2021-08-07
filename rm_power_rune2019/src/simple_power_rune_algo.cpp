@@ -64,7 +64,7 @@ int SimplePowerRuneAlgo::process4large(cv::Mat& img)
     }
     //debug info
     for (size_t i = 0; i < armors.size(); i++) {
-        RM_DEBUG(rm_util::draw4Point4f(roi_img, armors[i].points));
+        RM_DEBUG(rm_util::draw_4points(roi_img, armors[i].points));
     }
     RM_DEBUG(imshow("result", roi_img));
     // update FMS of power rune
@@ -88,7 +88,7 @@ int SimplePowerRuneAlgo::process4large(cv::Mat& img)
     for (int i = 0; i < 4; i++) {
         target_points.push_back(armor.points[i] + roi_offset_);
     }
-    mono_location_tool_->solvePnP4Points(target_points, realpoints_, position);
+    mono_location_tool_->solve_pnp(target_points, realpoints_, position);
     //project pred_point to 3D
     target_ = mono_location_tool_->unproject(pred_point + roi_offset_, position.z);
     is_reshoot_ = false;
@@ -100,7 +100,7 @@ int SimplePowerRuneAlgo::process4large(cv::Mat& img)
     RM_DEBUG(cv::circle(roi_img, rune_center_, 5, cv::Scalar(0, 255, 0), -1, 8));
     //for target armor
     RM_DEBUG(cv::circle(roi_img, armor.center, 5, rm_util::blue, -1, 8));
-    RM_DEBUG(rm_util::draw4Point4f(roi_img, armor.points));
+    RM_DEBUG(rm_util::draw_4points(roi_img, armor.points));
     RM_DEBUG(cv::circle(roi_img, pred_point, 5, rm_util::red, -1, 8));
     RM_DEBUG(imshow("shoot_result", roi_img));
     RM_DEBUG(waitKey(1));
@@ -119,7 +119,7 @@ int SimplePowerRuneAlgo::process4small(cv::Mat& img)
     std::vector<ArmorDescriptor> armors = rune_detector_.getAllArmors();
     //img debug
     for (size_t i = 0; i < armors.size(); i++) {
-        RM_DEBUG(rm_util::draw4Point4f(roi_img, armors[i].points));
+        RM_DEBUG(rm_util::draw_4points(roi_img, armors[i].points));
     }
     RM_DEBUG(imshow("result", roi_img));
     // update FMS of power rune
@@ -136,13 +136,13 @@ int SimplePowerRuneAlgo::process4small(cv::Mat& img)
     for (int i = 0; i < 4; i++) {
         target_points.push_back(armor.points[i] + roi_offset_);
     }
-    mono_location_tool_->solvePnP4Points(target_points, realpoints_, position);
+    mono_location_tool_->solve_pnp(target_points, realpoints_, position);
     target_ = position;
     is_reshoot_ = false;
     // debug
     // rune_detector_.printArmorDescriptor(armor);
     RM_DEBUG(cv::circle(roi_img, armor.center, 5, rm_util::blue, -1, 8));
-    RM_DEBUG(rm_util::draw4Point4f(roi_img, armor.points));
+    RM_DEBUG(rm_util::draw_4points(roi_img, armor.points));
     RM_DEBUG(imshow("shoot_result", roi_img));
     RM_DEBUG(waitKey(1));
 

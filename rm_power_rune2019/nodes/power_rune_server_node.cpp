@@ -20,8 +20,8 @@ int main(int argc, char *argv[]) {
     rclcpp::init(argc, argv);
     auto node = std::make_shared<rclcpp::Node>("power_rune_server");
     // set debug
-    auto is_debug = node->declare_parameter("is_debug", false);
-    rm_util::setDebug(is_debug);
+    auto get_debug = node->declare_parameter("get_debug", false);
+    rm_util::set_debug(get_debug);
     // create task
     auto task = std::make_shared<PowerRuneServer>(node);
     // run node until it's exited

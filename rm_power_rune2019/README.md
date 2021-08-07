@@ -79,7 +79,7 @@ debug信息（图像处理中间过程信息）
 若想取消图像debug信息，可以修改配置文件res/task_power_rune_config.yaml
 
 ```yaml
-is_debug : False
+get_debug : False
 ```
 
 #### Rviz可视化打击点（TODO）

@@ -45,7 +45,7 @@ AutoAimServer::AutoAimServer(rclcpp::Node::SharedPtr& nh)
     auto_aim_algo_.init(camera_intrinsic, camera_distortion);
     //set target blue
     auto_aim_algo_.setTargetColor(false);
-    projectile_tansform_tool_.setProjectileModel(NULL);
+    projectile_tansform_tool_.set_projectile_solver(NULL);
     RCLCPP_INFO(nh_->get_logger(), "init!");
 }
 
@@ -60,7 +60,7 @@ void AutoAimServer::process_image(cv::Mat& img, double /*img_stamp*/)
         Point3f position = target.postion / 100;
         //transform
         float pitch, yaw;
-        if (projectile_tansform_tool_.transform(position, pitch, yaw) != 0) {
+        if (projectile_tansform_tool_.calculate(position, pitch, yaw) != 0) {
             return;
         }
         //发布云台控制topic

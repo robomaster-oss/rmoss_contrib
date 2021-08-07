@@ -1,5 +1,5 @@
 task_power_rune:
     ros__parameters:
-        is_debug: True
+        get_debug: True
         camera_intrinsic: [1633.310586,0.000000,632.918617, 0.000000,1635.296201,537.038591, 0.000000, 0.000000, 1.000000]
         camera_distortion: [-0.094445,0.253880,0.005805 ,-0.000319,0.000000]
