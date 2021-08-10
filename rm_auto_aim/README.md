@@ -72,7 +72,3 @@ get_debug : False
 
 * 参考文档[doc/auto_aim_algo.md](doc/auto_aim_algo.md)
 
-### 5.维护者及开源许可证
-
-- Zhenpeng Ge,  zhenpeng.ge@qq.com
-- rm_auto_aim is provided under MIT.

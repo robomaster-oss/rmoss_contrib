@@ -1,3 +1,7 @@
+# rmoss_contrib
+
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+
 ![](rmoss_bg.png)
 RoboMasterOSS是一个面向RoboMaster的开源软件栈项目，目的是为RoboMaster机器人软件开发提供了一个快速的，灵活的开发工具，支持算法原型研究和robomaster比赛应用开发。
 
@@ -8,9 +12,9 @@ RoboMasterOSS是一个面向RoboMaster的开源软件栈项目，目的是为Rob
 >
 > 更多详情参考官网：[www.robomaster.com](https://www.robomaster.com/)
 
-# rmoss_contrib
-
 rmoss_contrib是RoboMaster OSS中的基础项目，为RoboMaster提供任务级功能模块包，如自动瞄准模块，能量机关模块等
+
+* 由于rmoss_core的重构，rmoss_contrib也会进行重构，目前会出现launch文件启动不了等问题。
 
 ## 1.主要模块
 
@@ -43,5 +47,5 @@ colcon build
 
 Maintainer : Zhenpeng Ge,  zhenpeng.ge@qq.com
 
-rmoss_contrib is provided under MIT.
+rmoss_core is provided under Apache License 2.0.
 

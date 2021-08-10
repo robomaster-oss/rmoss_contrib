@@ -92,9 +92,3 @@ get_debug : False
 
 * 参考文章：[关于RoboMaster2019能量机关任务](https://www.jianshu.com/p/83b509953198)
 * 能量机关状态机模块，实现激活（待打击）目标选择，补充说明文档：[doc/rune_machine_state.md](doc/rune_machine_state.md)
-
-### 5.维护者及开源许可证
-
-* Zhenpeng Ge,  zhenpeng.ge@qq.com
-
-* rm_power_rune2019 is provided under MIT.

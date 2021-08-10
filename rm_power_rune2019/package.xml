@@ -7,7 +7,7 @@
     A Simple Implemetation for RoboMaster Vision-based Task Auto-Aim-Task .
   </description>
   <maintainer email="zhenpeng.ge@qq.com">zhenpeng ge</maintainer>
-  <license>MIT</license>
+  <license>Apache License 2.0</license>
 
   <buildtool_depend>ament_cmake</buildtool_depend>
 
