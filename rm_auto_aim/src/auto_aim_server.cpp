@@ -60,7 +60,7 @@ void AutoAimServer::process_image(cv::Mat& img, double /*img_stamp*/)
         Point3f position = target.postion / 100;
         //transform
         float pitch, yaw;
-        if (projectile_tansform_tool_.calculate(position, pitch, yaw) != 0) {
+        if (projectile_tansform_tool_.solve(position, pitch, yaw) != 0) {
             return;
         }
         //发布云台控制topic
