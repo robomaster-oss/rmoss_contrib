@@ -1,0 +1,6 @@
+simple_auto_aim:
+    ros__parameters:
+        debug: True
+        robot_color: "red"
+        camera_name: "front_camera"
+        auto_start: True
