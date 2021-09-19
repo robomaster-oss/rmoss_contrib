@@ -11,23 +11,15 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#ifndef RM_POWER_RUNE_2019_RUNE_PREDICTION_TOOL_H
-#define RM_POWER_RUNE_2019_RUNE_PREDICTION_TOOL_H
 
-#include <opencv2/opencv.hpp>
+#include <rclcpp/rclcpp.hpp>
+#include "rm_power_rune2019/power_rune_node.hpp"
 
-namespace rm_power_rune2019
+int main(int argc, char * argv[])
 {
-
-class RunePredictionTool
-{
-public:
-  static bool fitCircle(
-    const std::vector<cv::Point2f> & points, cv::Point2f & centre,
-    float & radius);
-  static cv::Point2f rotatePoint2D(cv::Point2f center, cv::Point2f postion, float angle);
-};
-
-}  // namespace rm_power_rune2019
-
-#endif  //RM_POWER_RUNE_2019_RUNE_PREDICTION_TOOL_H
+  rclcpp::init(argc, argv);
+  auto node = std::make_shared<rm_power_rune2019::PowerRuneNode>();
+  rclcpp::spin(node->get_node_base_interface());
+  rclcpp::shutdown();
+  return 0;
+}

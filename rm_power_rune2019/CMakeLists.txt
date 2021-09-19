@@ -14,6 +14,7 @@ find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(rmoss_interfaces REQUIRED)
 find_package(rm_util REQUIRED)
+find_package(rm_cam REQUIRED)
 find_package(rm_projectile_motion REQUIRED)
 find_package(OpenCV REQUIRED)
 
@@ -21,23 +22,31 @@ find_package(OpenCV REQUIRED)
 include_directories(include)
 
 # Create rm_power_rune2019 lib
-AUX_SOURCE_DIRECTORY(${PROJECT_SOURCE_DIR}/src DIR_SRCS)
-add_library(${PROJECT_NAME} ${DIR_SRCS})
-ament_target_dependencies(${PROJECT_NAME}
-    rclcpp 
-    rmoss_interfaces
-    rm_util
-    rm_projectile_motion
-    OpenCV
+add_library(${PROJECT_NAME} SHARED
+  src/power_rune_algo/rune_detector.cpp
+  src/power_rune_algo/rune_prediction_tool.cpp
+  src/power_rune_algo/rune_state_machine.cpp
+  src/power_rune_algo/simple_power_rune_algo.cpp
+  src/power_rune_node.cpp
 )
 
+set(dependencies
+  rclcpp 
+  rmoss_interfaces
+  rm_util
+  rm_cam
+  rm_projectile_motion
+  OpenCV
+)
+ament_target_dependencies(${PROJECT_NAME} ${dependencies})
+
 # Create executable nodes
-add_executable(power_rune_server nodes/power_rune_server_node.cpp)
-target_link_libraries(power_rune_server ${PROJECT_NAME})
+add_executable(power_rune src/power_rune_main.cpp)
+target_link_libraries(power_rune ${PROJECT_NAME})
 
 
 # Install launch res directories
-install(DIRECTORY launch res
+install(DIRECTORY launch config
   DESTINATION share/${PROJECT_NAME}
 )
 
@@ -56,7 +65,7 @@ install(TARGETS ${PROJECT_NAME}
 )
 
 # Install executable nodes
-install(TARGETS power_rune_server 
+install(TARGETS power_rune 
   DESTINATION lib/${PROJECT_NAME}
 )
 
@@ -67,11 +76,7 @@ install(PROGRAMS
     
 #export rm_auto_aim dependency
 ament_export_targets(${PROJECT_NAME} HAS_LIBRARY_TARGET)
-ament_export_dependencies(rclcpp)
-ament_export_dependencies(rmoss_interfaces)
-ament_export_dependencies(rm_util)
-ament_export_dependencies(rm_projectile_motion)
-ament_export_dependencies(OpenCV)
+ament_export_dependencies(${dependencies})
 
 #test
 if(BUILD_TESTING)

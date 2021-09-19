@@ -4,7 +4,7 @@
   <name>rm_power_rune2019</name>
   <version>1.0.0</version>
   <description>
-    A Simple Implemetation for RoboMaster Vision-based Task Auto-Aim-Task .
+    A Simple Implemetation for RoboMaster Vision-based Task Power Rune 2019 .
   </description>
   <maintainer email="zhenpeng.ge@qq.com">zhenpeng ge</maintainer>
   <license>Apache License 2.0</license>
@@ -14,11 +14,13 @@
   <build_depend>rclcpp</build_depend>
   <build_depend>rmoss_interfaces</build_depend>
   <build_depend>rm_util</build_depend>
+  <build_depend>rm_cam</build_depend>
   <build_depend>rm_projectile_motion</build_depend>
 
   <exec_depend>rclcpp</exec_depend>
-  <build_depend>rmoss_interfaces</build_depend>
+  <exec_depend>rmoss_interfaces</exec_depend>
   <exec_depend>rm_util</exec_depend>
+  <exec_depend>rm_cam</exec_depend>
   <exec_depend>rm_projectile_motion</exec_depend>
 
   <test_depend>ament_lint_auto</test_depend>
