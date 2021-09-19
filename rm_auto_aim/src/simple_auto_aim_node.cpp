@@ -46,11 +46,11 @@ SimpleAutoAimNode::SimpleAutoAimNode(const rclcpp::NodeOptions & options)
   set_mode_srv_ = node_->create_service<rmoss_interfaces::srv::SetMode>(
     "task_auto_aim/set_mode", std::bind(&SimpleAutoAimNode::set_mode_cb, this, _1, _2));
   // create image task server
-  image_task_server_ = std::make_shared<rm_cam::CamClient>(
+  cam_client_ = std::make_shared<rm_cam::CamClient>(
     node_, camera_name, std::bind(&SimpleAutoAimNode::process_image, this, _1, _2), true);
   // wait camera parameters camera_k,camera_d,camera_p
   sensor_msgs::msg::CameraInfo info;
-  if(!image_task_server_->get_camera_info(info)){
+  if(!cam_client_->get_camera_info(info)){
     RCLCPP_ERROR(node_->get_logger(), "get camera info failed!");
     return;
   }
@@ -74,7 +74,7 @@ SimpleAutoAimNode::SimpleAutoAimNode(const rclcpp::NodeOptions & options)
   //gimbal_tansform_tool_->set_projectile_solver(NULL);
   RCLCPP_INFO(node_->get_logger(), "init successfully!");
   if (auto_start) {
-    image_task_server_->start();
+    cam_client_->start();
     RCLCPP_INFO(node_->get_logger(), "auto start!");
   }
 }
@@ -124,17 +124,17 @@ bool SimpleAutoAimNode::set_mode_cb(
   // 0x10,设置目标为红色，0x11,设置目标为蓝色
   response->success = true;
   if (request->mode == 0x00) {
-    image_task_server_->stop();
+    cam_client_->stop();
   } else if (request->mode == 0x01) {
-    image_task_server_->start();
+    cam_client_->start();
     gimbal_ctrl_flag_ = true;
     shoot_ctrl_flag_ = true;
   } else if (request->mode == 0x02) {
-    image_task_server_->start();
+    cam_client_->start();
     gimbal_ctrl_flag_ = true;
     shoot_ctrl_flag_ = false;
   } else if (request->mode == 0x03) {
-    image_task_server_->start();
+    cam_client_->start();
     gimbal_ctrl_flag_ = false;
     shoot_ctrl_flag_ = false;
   } else if (request->mode == 0x10) {

@@ -46,7 +46,7 @@ private:
 
 private:
   rclcpp::Node::SharedPtr node_;
-  std::shared_ptr<rm_cam::CamClient> image_task_server_;
+  std::shared_ptr<rm_cam::CamClient> cam_client_;
   // 自瞄算法类
   std::shared_ptr<SimpleAutoAimAlgo> auto_aim_algo_;
   // 坐标变换工具类

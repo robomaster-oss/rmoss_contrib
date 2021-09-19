@@ -14,10 +14,6 @@ RoboMasterOSS是一个面向RoboMaster的开源软件栈项目，目的是为Rob
 
 rmoss_contrib是RoboMaster OSS中的基础项目，为RoboMaster提供任务级功能模块包，如自动瞄准模块，能量机关模块等
 
-**重构计划**：遵循ROS2代码规范。
-
-* `rm_auto_aim` : 等待中
-* `rm_power_rune2019` : 等待中（优先级低，暂不考虑）
 
 ## 1.主要模块
 
