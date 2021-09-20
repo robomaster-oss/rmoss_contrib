@@ -17,6 +17,8 @@
 
 #include <rclcpp/rclcpp.hpp>
 #include <opencv2/opencv.hpp>
+#include <Eigen/Geometry>
+
 #include "rm_cam/cam_client.hpp"
 #include "rm_auto_aim/simple_auto_aim_algo.hpp"
 #include "rm_projectile_motion/gimbal_transform_tool.hpp"
@@ -60,10 +62,8 @@ private:
   rclcpp::Service<rmoss_interfaces::srv::SetMode>::SharedPtr set_mode_srv_;
   // data
   bool debug_{false};
-  // offset of cam-gimbal
-  cv::Point3f offset_trans_;       // 云台相对于相机的坐标（直接测量获得），单位为cm
-  float offset_pitch_;             // pitch轴偏移量
-  float offset_yaw_;               // yaw轴偏移量
+  // 假设相机安装在枪管/云台上，相机到云台的坐标变换 T_{gimbal_camera}
+  Eigen::Isometry3d trans_gc_; 
   // tmp data
   bool gimbal_ctrl_flag_{true};
   bool shoot_ctrl_flag_{true};

@@ -17,6 +17,8 @@ find_package(rm_util REQUIRED)
 find_package(rm_cam REQUIRED)
 find_package(rm_projectile_motion REQUIRED)
 find_package(OpenCV REQUIRED)
+find_package(eigen3_cmake_module REQUIRED)
+find_package(Eigen3 REQUIRED)
 
 # Include
 include_directories(include)
@@ -34,6 +36,8 @@ set(dependencies
   rm_cam
   rm_projectile_motion
   OpenCV
+  Eigen3
+  eigen3_cmake_module
 )
 ament_target_dependencies(${PROJECT_NAME} ${dependencies})
 

@@ -68,6 +68,11 @@ SimpleAutoAimNode::SimpleAutoAimNode(const rclcpp::NodeOptions & options)
   std::vector<double> camera_k(9, 0);
   std::copy_n(info.k.begin(), 9, camera_k.begin());
   auto_aim_algo_ = std::make_shared<SimpleAutoAimAlgo>(camera_k, info.d);
+  trans_gc_ = Eigen::Isometry3d::Identity();
+  for(int i=0;i<12;i++){
+    trans_gc_(i/4,i%4) = info.p[i];
+  }
+  RM_DEBUG(std::cout << "trans_gc_:\n" << trans_gc_.matrix() << std::endl);
   // set enemy robot color
   auto_aim_algo_->set_target_color(!is_red);
   gimbal_tansform_tool_ = std::make_shared<rm_projectile_motion::GimbalTransformTool>();
@@ -85,23 +90,23 @@ void SimpleAutoAimNode::process_image(cv::Mat & img, double /*img_stamp*/)
   if (ret == 0) {
     ArmorTarget target = auto_aim_algo_->getTarget();
     target.postion = target.postion / 100;
-    // transform frame (tmp)
-    cv::Point3f position;
-    position.x = target.postion.z;
-    position.y = target.postion.x;
-    position.z = target.postion.y;
-    // transform 
-    float pitch, yaw;
-    if (!gimbal_tansform_tool_->solve(position, pitch, yaw)) {
-      RCLCPP_ERROR(node_->get_logger(), "transform failed: (%f,%f,%f)", position.x,position.y,position.z);
+    Eigen::Vector3d point(target.postion.x,target.postion.y,target.postion.z);
+    // trans_bg : 云台到云台基座(共坐标原点)的坐标变换 T_{base_gimbal}, trans_bg由current_pitch_计算
+    Eigen::Isometry3d trans_bg = Eigen::Isometry3d::Identity();
+    // transform frame {camera frame -> gimbal frame -> gimbal base frame}
+    point = trans_bg * trans_gc_ * point;
+    // calcaule angle of gimbal (in gimbal base frame)
+    double pitch, yaw;
+    if (!gimbal_tansform_tool_->solve(point, pitch, yaw)) {
+      RCLCPP_ERROR(node_->get_logger(), "transform failed: (%.3lf,%.3lf,%.3lf)", point(0), point(1), point(2));
       return;
     }
-    RCLCPP_INFO(node_->get_logger(), "find target: (%f,%f,%f)", position.x,position.y,position.z);
-    //发布云台控制topic
+    RCLCPP_INFO(node_->get_logger(), "find target: (%.3lf,%.3lf,%.3lf)", point(0), point(1), point(2));
+    // 发布云台控制topic,relative angle
     if (gimbal_ctrl_flag_) {
       rmoss_interfaces::msg::GimbalCmd gimbal_cmd;
       gimbal_cmd.type = 0x00;
-      gimbal_cmd.position.pitch = pitch;
+      gimbal_cmd.position.pitch = pitch - current_pitch_;
       gimbal_cmd.position.yaw = yaw;
       gimbal_cmd_pub_->publish(gimbal_cmd);
     }
