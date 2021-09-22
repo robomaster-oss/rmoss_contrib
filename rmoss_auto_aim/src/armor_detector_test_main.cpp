@@ -40,7 +40,7 @@ int main(int argc, char * argv[])
     auto results = armor_detector.getArmorVector();
     if (results.size() != 0) {
       for (auto result : results) {
-        rmoss_DEBUG(rmoss_util::draw_4points(img, result.points));
+        RMOSS_DEBUG(rmoss_util::draw_4points(img, result.points));
       }
       cv::imshow("result", img);
       //wait to exit

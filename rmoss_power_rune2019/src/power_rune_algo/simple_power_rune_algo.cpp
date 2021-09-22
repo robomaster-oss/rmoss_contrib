@@ -68,9 +68,9 @@ int SimplePowerRuneAlgo::process4large(cv::Mat & img)
   }
   //debug info
   for (size_t i = 0; i < armors.size(); i++) {
-    rmoss_DEBUG(rmoss_util::draw_4points(roi_img, armors[i].points));
+    RMOSS_DEBUG(rmoss_util::draw_4points(roi_img, armors[i].points));
   }
-  rmoss_DEBUG(imshow("result", roi_img));
+  RMOSS_DEBUG(imshow("result", roi_img));
   // update FMS of power rune
   auto code = rune_state_machine_.update(armors);
   if (code == FmsResultCode::wait0) {
@@ -104,14 +104,14 @@ int SimplePowerRuneAlgo::process4large(cv::Mat & img)
     "target point:(%f,%f,%f)..predict point(%f,%f,%f)\n", position.x, position.y, position.z,
     target_.x, target_.y, target_.z);
   //for prediction circle
-  rmoss_DEBUG(cv::circle(roi_img, rune_center_, rune_radius_, cv::Scalar(0, 255, 0), 1, 8));
-  rmoss_DEBUG(cv::circle(roi_img, rune_center_, 5, cv::Scalar(0, 255, 0), -1, 8));
+  RMOSS_DEBUG(cv::circle(roi_img, rune_center_, rune_radius_, cv::Scalar(0, 255, 0), 1, 8));
+  RMOSS_DEBUG(cv::circle(roi_img, rune_center_, 5, cv::Scalar(0, 255, 0), -1, 8));
   //for target armor
-  rmoss_DEBUG(cv::circle(roi_img, armor.center, 5, rmoss_util::blue, -1, 8));
-  rmoss_DEBUG(rmoss_util::draw_4points(roi_img, armor.points));
-  rmoss_DEBUG(cv::circle(roi_img, pred_point, 5, rmoss_util::red, -1, 8));
-  rmoss_DEBUG(imshow("shoot_result", roi_img));
-  rmoss_DEBUG(waitKey(1));
+  RMOSS_DEBUG(cv::circle(roi_img, armor.center, 5, rmoss_util::blue, -1, 8));
+  RMOSS_DEBUG(rmoss_util::draw_4points(roi_img, armor.points));
+  RMOSS_DEBUG(cv::circle(roi_img, pred_point, 5, rmoss_util::red, -1, 8));
+  RMOSS_DEBUG(imshow("shoot_result", roi_img));
+  RMOSS_DEBUG(waitKey(1));
   return 0;
 }
 
@@ -127,9 +127,9 @@ int SimplePowerRuneAlgo::process4small(cv::Mat & img)
   std::vector<ArmorDescriptor> armors = rune_detector_.getAllArmors();
   //img debug
   for (size_t i = 0; i < armors.size(); i++) {
-    rmoss_DEBUG(rmoss_util::draw_4points(roi_img, armors[i].points));
+    RMOSS_DEBUG(rmoss_util::draw_4points(roi_img, armors[i].points));
   }
-  rmoss_DEBUG(imshow("result", roi_img));
+  RMOSS_DEBUG(imshow("result", roi_img));
   // update FMS of power rune
   auto code = rune_state_machine_.update(armors);
   if (code != FmsResultCode::shoot) {
@@ -149,10 +149,10 @@ int SimplePowerRuneAlgo::process4small(cv::Mat & img)
   is_reshoot_ = false;
   // debug
   // rune_detector_.printArmorDescriptor(armor);
-  rmoss_DEBUG(cv::circle(roi_img, armor.center, 5, rmoss_util::blue, -1, 8));
-  rmoss_DEBUG(rmoss_util::draw_4points(roi_img, armor.points));
-  rmoss_DEBUG(imshow("shoot_result", roi_img));
-  rmoss_DEBUG(waitKey(1));
+  RMOSS_DEBUG(cv::circle(roi_img, armor.center, 5, rmoss_util::blue, -1, 8));
+  RMOSS_DEBUG(rmoss_util::draw_4points(roi_img, armor.points));
+  RMOSS_DEBUG(imshow("shoot_result", roi_img));
+  RMOSS_DEBUG(waitKey(1));
 
   return 0;
 }

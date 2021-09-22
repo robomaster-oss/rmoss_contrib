@@ -72,7 +72,7 @@ SimpleAutoAimNode::SimpleAutoAimNode(const rclcpp::NodeOptions & options)
   for(int i=0;i<12;i++){
     trans_gc_(i/4,i%4) = info.p[i];
   }
-  rmoss_DEBUG(std::cout << "trans_gc_:\n" << trans_gc_.matrix() << std::endl);
+  RMOSS_DEBUG(std::cout << "trans_gc_:\n" << trans_gc_.matrix() << std::endl);
   // set enemy robot color
   auto_aim_algo_->set_target_color(!is_red);
   gimbal_tansformoss_tool_ = std::make_shared<rmoss_projectile_motion::GimbalTransformTool>();

@@ -36,9 +36,9 @@ int ArmorDetector::preImg(Mat src, Mat & dst)
   img_b = bgr[0];
   img_g = bgr[1];
   img_r = bgr[2];
-  //rmoss_DEBUG(imshow("b", img_b));
-  //rmoss_DEBUG(imshow("g", img_g));
-  //rmoss_DEBUG(imshow("r", img_r));
+  //RMOSS_DEBUG(imshow("b", img_b));
+  //RMOSS_DEBUG(imshow("g", img_g));
+  //RMOSS_DEBUG(imshow("r", img_r));
   Mat imgTargetColor, imgBrightness;
   // default taget is red
   if (target_is_red_) {
@@ -52,14 +52,14 @@ int ArmorDetector::preImg(Mat src, Mat & dst)
   Mat element = getStructuringElement(MORPH_ELLIPSE, Size(7, 7));
   dilate(imgTargetColor, imgTargetColor, element);
   threshold(imgTargetColor, imgTargetColor, 72, 255, cv::THRESH_BINARY);
-  rmoss_DEBUG(imshow("target_dialte_thre", imgTargetColor));
+  RMOSS_DEBUG(imshow("target_dialte_thre", imgTargetColor));
   //亮度区域
   GaussianBlur(imgBrightness, imgBrightness, Size(3, 3), 1);
   threshold(imgBrightness, imgBrightness, 150, 255, cv::THRESH_BINARY);
-  rmoss_DEBUG(imshow("bright_thre", imgBrightness));
+  RMOSS_DEBUG(imshow("bright_thre", imgBrightness));
   //逻辑与，求交集
   bitwise_and(imgTargetColor, imgBrightness, dst);
-  rmoss_DEBUG(imshow("dst", dst));
+  RMOSS_DEBUG(imshow("dst", dst));
   return 0;
 }
 
@@ -200,7 +200,7 @@ int ArmorDetector::process(cv::Mat img)
 {
   mLights.clear();
   mArmors.clear();
-  rmoss_DEBUG(waitKey(1));
+  RMOSS_DEBUG(waitKey(1));
   //预处理
   Mat grayImg;
   preImg(img, grayImg);
@@ -225,9 +225,9 @@ int ArmorDetector::process(cv::Mat img)
   // cout<<"light num:"<<mLights.size()<<endl;
   Mat drawing = Mat::zeros(img.size(), CV_8UC3);
   for (size_t i = 0; i < mLights.size(); i++) {
-    rmoss_DEBUG(rmoss_util::draw_rotated_rect(drawing, mLights[i].r));
+    RMOSS_DEBUG(rmoss_util::draw_rotated_rect(drawing, mLights[i].r));
   }
-  rmoss_DEBUG(imshow("light", drawing));
+  RMOSS_DEBUG(imshow("light", drawing));
   //赋予id
   for (size_t i = 0; i < mLights.size(); i++) {
     mLights[i].id = i;
@@ -252,9 +252,9 @@ int ArmorDetector::process(cv::Mat img)
     return 2;
   }
   for (size_t i = 0; i < mArmors.size(); i++) {
-    rmoss_DEBUG(rmoss_util::draw_4points(img, mArmors[i].points));
+    RMOSS_DEBUG(rmoss_util::draw_4points(img, mArmors[i].points));
   }
-  rmoss_DEBUG(imshow("result", img));
+  RMOSS_DEBUG(imshow("result", img));
   //返回处理结果
   return 0;
 }
