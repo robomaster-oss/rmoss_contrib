@@ -13,6 +13,7 @@
 // limitations under the License.
 #include "rmoss_power_rune2019/simple_power_rune_algo.hpp"
 #include "rmoss_util/debug.hpp"
+#include "rmoss_util/image_utils.hpp"
 
 using namespace std;
 using namespace cv;

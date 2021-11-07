@@ -15,10 +15,9 @@
 #include "rmoss_auto_aim/armor_detector.hpp"
 
 #include <cmath>
-#include <rmoss_util/math.hpp>
-#include <rmoss_util/types.hpp>
-#include <rmoss_util/debug.hpp>
 
+#include "rmoss_util/debug.hpp"
+#include "rmoss_util/image_utils.hpp"
 
 using namespace std;
 using namespace cv;

@@ -14,7 +14,7 @@
 #include "rmoss_power_rune2019/rune_detector.hpp"
 
 #include "rmoss_util/debug.hpp"
-#include "rmoss_util/math.hpp"
+#include "rmoss_util/image_utils.hpp"
 
 using namespace std;
 using namespace cv;

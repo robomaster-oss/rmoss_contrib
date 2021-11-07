@@ -14,7 +14,9 @@
 
 #include <rclcpp/rclcpp.hpp>
 #include <opencv2/opencv.hpp>
+
 #include "rmoss_util/debug.hpp"
+#include "rmoss_util/image_utils.hpp"
 #include "rmoss_cam/cam_client.hpp"
 #include "rmoss_auto_aim/armor_detector.hpp"
 
