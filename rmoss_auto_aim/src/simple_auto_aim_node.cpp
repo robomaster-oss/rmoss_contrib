@@ -105,7 +105,6 @@ void SimpleAutoAimNode::process_image(cv::Mat & img, double /*img_stamp*/)
     // 发布云台控制topic,relative angle
     if (gimbal_ctrl_flag_) {
       rmoss_interfaces::msg::GimbalCmd gimbal_cmd;
-      gimbal_cmd.type = 0x00;
       gimbal_cmd.position.pitch = pitch - current_pitch_;
       gimbal_cmd.position.yaw = yaw;
       gimbal_cmd_pub_->publish(gimbal_cmd);
