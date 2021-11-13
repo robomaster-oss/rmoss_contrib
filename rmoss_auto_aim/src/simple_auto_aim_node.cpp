@@ -84,7 +84,7 @@ SimpleAutoAimNode::SimpleAutoAimNode(const rclcpp::NodeOptions & options)
   }
 }
 
-void SimpleAutoAimNode::process_image(cv::Mat & img, double /*img_stamp*/)
+void SimpleAutoAimNode::process_image(cv::Mat & img, rclcpp::Time /*stamp*/)
 {
   int ret = auto_aim_algo_->process(img, current_pitch_);
   if (ret == 0) {

@@ -37,7 +37,7 @@ int main(int argc, char * argv[])
   bool is_red = (robot_color == "red");
   armor_detector.set_target_color(is_red);
   rmoss_util::set_debug(true);
-  auto process_image_fn = [&](cv::Mat & img, double /*img_stamp*/){
+  auto process_image_fn = [&](cv::Mat & img, rclcpp::Time /*stamp*/){
     armor_detector.process(img);
     auto results = armor_detector.getArmorVector();
     if (results.size() != 0) {

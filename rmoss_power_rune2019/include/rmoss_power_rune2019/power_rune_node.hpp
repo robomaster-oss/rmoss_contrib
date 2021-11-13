@@ -41,7 +41,7 @@ public:
   }
 
 private:
-  void process_image(cv::Mat & img, double img_stamp);
+  void process_image(cv::Mat & img, rclcpp::Time stamp);
   bool setModeCallBack(
     const std::shared_ptr<rmoss_interfaces::srv::SetMode::Request> request,
     std::shared_ptr<rmoss_interfaces::srv::SetMode::Response> response);

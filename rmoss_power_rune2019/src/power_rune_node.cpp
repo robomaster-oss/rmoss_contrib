@@ -92,7 +92,7 @@ PowerRuneNode::PowerRuneNode(const rclcpp::NodeOptions & options)
   }
 }
 
-void PowerRuneNode::process_image(cv::Mat & img, double /*img_stamp*/)
+void PowerRuneNode::process_image(cv::Mat & img, rclcpp::Time /*img_stamp*/)
 {
   // RCLCPP_INFO(node_->get_logger(), "stamp:%f",img_stamp);
   if (is_need_reshoot_) {
