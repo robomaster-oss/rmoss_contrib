@@ -87,13 +87,16 @@ PowerRuneNode::PowerRuneNode(const rclcpp::NodeOptions & options)
   RCLCPP_INFO(node_->get_logger(), "init successfully!");
   if (auto_start) {
     current_mode_ = TaskMode::large;
-    cam_client_->start();
+    run_flag_ = true;
     RCLCPP_INFO(node_->get_logger(), "auto start!");
   }
 }
 
-void PowerRuneNode::process_image(cv::Mat & img, rclcpp::Time /*img_stamp*/)
+void PowerRuneNode::process_image(const cv::Mat & img, const rclcpp::Time & /*stamp*/)
 {
+  if (!run_flag_) {
+    return;
+  }
   // RCLCPP_INFO(node_->get_logger(), "stamp:%f",img_stamp);
   if (is_need_reshoot_) {
     power_rune_algo_->setReShoot();
@@ -129,17 +132,16 @@ bool PowerRuneNode::setModeCallBack(
   std::shared_ptr<rmoss_interfaces::srv::SetMode::Response> response)
 {
   // 0x00 停止，0x01,运行小能量机关，0x02运行大能量机关,0x03重置发射
-
   response->success = true;
   if (request->mode == 0x00) {
-    cam_client_->stop();
+    run_flag_ = false;
     current_mode_ = TaskMode::idle;
   } else if (request->mode == 0x01) {
-    cam_client_->start();
+    run_flag_ = true;
     is_need_clear_ = true;
     current_mode_ = TaskMode::small;
   } else if (request->mode == 0x02) {
-    cam_client_->start();
+    run_flag_ = true;
     is_need_clear_ = true;
     current_mode_ = TaskMode::large;
   } else if (request->mode == 0x03) {

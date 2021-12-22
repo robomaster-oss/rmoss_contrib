@@ -22,18 +22,18 @@ SimpleAutoAimNode::SimpleAutoAimNode(const rclcpp::NodeOptions & options)
 {
   node_ = std::make_shared<rclcpp::Node>("simple_auto_aim", options);
   std::string camera_name = "camera";
-  std::string robot_color = "red";
-  bool auto_start = false;
+  std::string target_color = "red";
+  bool autostart = false;
   // parameters
-  node_->declare_parameter("robot_color", robot_color);
+  node_->declare_parameter("target_color", target_color);
   node_->declare_parameter("debug", debug_);
   node_->declare_parameter("camera_name", camera_name);
-  node_->declare_parameter("auto_start", auto_start);
-  node_->get_parameter("robot_color", robot_color);
+  node_->declare_parameter("autostart", autostart);
+  node_->get_parameter("target_color", target_color);
   node_->get_parameter("debug", debug_);
   node_->get_parameter("camera_name", camera_name);
-  node_->get_parameter("auto_start", auto_start);
-  bool is_red = (robot_color == "red");
+  node_->get_parameter("autostart", autostart);
+  bool is_red = (target_color == "red");
   rmoss_util::set_debug(debug_);
   // create pub,sub,srv
   using namespace std::placeholders;
@@ -43,27 +43,23 @@ SimpleAutoAimNode::SimpleAutoAimNode(const rclcpp::NodeOptions & options)
     "robot_base/shoot_cmd", 10);
   gimbal_state_sub_ = node_->create_subscription<rmoss_interfaces::msg::Gimbal>(
     "robot_base/gimbal_state", 10, std::bind(&SimpleAutoAimNode::gimbal_state_cb, this, _1));
-  set_mode_srv_ = node_->create_service<rmoss_interfaces::srv::SetMode>(
-    "task_auto_aim/set_mode", std::bind(&SimpleAutoAimNode::set_mode_cb, this, _1, _2));
-  // create image task server
+  set_color_srv_ = node_->create_service<rmoss_interfaces::srv::SetColor>(
+    "auto_aim/set_color", std::bind(&SimpleAutoAimNode::set_color_cb, this, _1, _2));
+  // create image task client
   cam_client_ = std::make_shared<rmoss_cam::CamClient>(
-    node_, camera_name, std::bind(&SimpleAutoAimNode::process_image, this, _1, _2), true);
+    node_, camera_name, std::bind(&SimpleAutoAimNode::process_image, this, _1, _2), false);
+  // init task manager
+  task_manager_ = std::make_shared<rmoss_util::TaskManager>(
+    node_,
+    std::bind(&SimpleAutoAimNode::get_task_status_cb, this),
+    std::bind(&SimpleAutoAimNode::control_task_cb, this, _1));
   // wait camera parameters camera_k,camera_d,camera_p
   sensor_msgs::msg::CameraInfo info;
   if(!cam_client_->get_camera_info(info)){
     RCLCPP_ERROR(node_->get_logger(), "get camera info failed!");
     return;
   }
-  std::ostringstream oss;
-  oss << "k:";
-  for (auto & x : info.k) {
-    oss << x <<" ";
-  }
-  oss << ",d:";
-  for (auto & x : info.d) {
-    oss << x <<" ";
-  }
-  RCLCPP_INFO(node_->get_logger(), "get camera info: %s", oss.str().c_str());
+  // RMOSS_DEBUG(std::cout << "camera info :" << std::endl);
   // init tool class
   std::vector<double> camera_k(9, 0);
   std::copy_n(info.k.begin(), 9, camera_k.begin());
@@ -74,79 +70,65 @@ SimpleAutoAimNode::SimpleAutoAimNode(const rclcpp::NodeOptions & options)
   }
   RMOSS_DEBUG(std::cout << "trans_gc_:\n" << trans_gc_.matrix() << std::endl);
   // set enemy robot color
-  auto_aim_algo_->set_target_color(!is_red);
+  auto_aim_algo_->set_target_color(is_red);
   gimbal_tansformoss_tool_ = std::make_shared<rmoss_projectile_motion::GimbalTransformTool>();
   //gimbal_tansformoss_tool_->set_projectile_solver(NULL);
+  if (autostart) {
+    run_flag_ = true;
+  }
   RCLCPP_INFO(node_->get_logger(), "init successfully!");
-  if (auto_start) {
-    cam_client_->start();
-    RCLCPP_INFO(node_->get_logger(), "auto start!");
-  }
 }
 
-void SimpleAutoAimNode::process_image(cv::Mat & img, rclcpp::Time /*stamp*/)
+void SimpleAutoAimNode::process_image(const cv::Mat & img, const rclcpp::Time &/*stamp*/)
 {
+  if (!run_flag_) {
+    return;
+  }
   int ret = auto_aim_algo_->process(img, current_pitch_);
-  if (ret == 0) {
-    ArmorTarget target = auto_aim_algo_->getTarget();
-    target.postion = target.postion / 100;
-    Eigen::Vector3d point(target.postion.x,target.postion.y,target.postion.z);
-    // trans_bg : 云台到云台基座(共坐标原点)的坐标变换 T_{base_gimbal}, trans_bg由current_pitch_计算
-    Eigen::Isometry3d trans_bg = Eigen::Isometry3d::Identity();
-    // transform frame {camera frame -> gimbal frame -> gimbal base frame}
-    point = trans_bg * trans_gc_ * point;
-    // calcaule angle of gimbal (in gimbal base frame)
-    double pitch, yaw;
-    if (!gimbal_tansformoss_tool_->solve(point, pitch, yaw)) {
-      RCLCPP_ERROR(node_->get_logger(), "transform failed: (%.3lf,%.3lf,%.3lf)", point(0), point(1), point(2));
-      return;
-    }
-    RCLCPP_INFO(node_->get_logger(), "find target: (%.3lf,%.3lf,%.3lf)", point(0), point(1), point(2));
-    // 发布云台控制topic,relative angle
-    if (gimbal_ctrl_flag_) {
-      rmoss_interfaces::msg::GimbalCmd gimbal_cmd;
-      gimbal_cmd.position.pitch = pitch - current_pitch_;
-      gimbal_cmd.position.yaw = yaw;
-      gimbal_cmd_pub_->publish(gimbal_cmd);
-    }
-    //发射子弹
-    if (shoot_ctrl_flag_) {
-      rmoss_interfaces::msg::ShootCmd shoot_cmd;
-      shoot_cmd.projectile_num = 3;
-      shoot_cmd_pub_->publish(shoot_cmd);
-    }
-  } else {
+  if (ret != 0) {
     RCLCPP_INFO(node_->get_logger(), "not find target!");     //表示没有发现目标
+    return;
+  }
+  ArmorTarget target = auto_aim_algo_->getTarget();
+  target.postion = target.postion / 100;
+  Eigen::Vector3d point(target.postion.x,target.postion.y,target.postion.z);
+  // trans_bg : 云台到云台基座(共坐标原点)的坐标变换 T_{base_gimbal}, trans_bg由current_pitch_计算
+  Eigen::Isometry3d trans_bg = Eigen::Isometry3d::Identity();
+  // transform frame {camera frame -> gimbal frame -> gimbal base frame}
+  point = trans_bg * trans_gc_ * point;
+  // calcaule angle of gimbal (in gimbal base frame)
+  double pitch, yaw;
+  if (!gimbal_tansformoss_tool_->solve(point, pitch, yaw)) {
+    RCLCPP_ERROR(node_->get_logger(), "transform failed: (%.3lf,%.3lf,%.3lf)", point(0), point(1), point(2));
+    return;
+  }
+  RCLCPP_INFO(node_->get_logger(), "find target: (%.3lf,%.3lf,%.3lf)", point(0), point(1), point(2));
+
+  // 发布云台控制topic,relative angle
+  rmoss_interfaces::msg::GimbalCmd gimbal_cmd;
+  gimbal_cmd.position.pitch = pitch - current_pitch_;
+  gimbal_cmd.position.yaw = yaw;
+  gimbal_cmd_pub_->publish(gimbal_cmd);
+  
+  //发射子弹
+  if(fabs(yaw) < 0.01){
+    rmoss_interfaces::msg::ShootCmd shoot_cmd;
+    shoot_cmd.projectile_num = 3;
+    shoot_cmd_pub_->publish(shoot_cmd);
   }
 }
 
-bool SimpleAutoAimNode::set_mode_cb(
-  const std::shared_ptr<rmoss_interfaces::srv::SetMode::Request> request,
-  std::shared_ptr<rmoss_interfaces::srv::SetMode::Response> response)
+bool SimpleAutoAimNode::set_color_cb(
+    const rmoss_interfaces::srv::SetColor::Request::SharedPtr request,
+    rmoss_interfaces::srv::SetColor::Response::SharedPtr response)
 {
-  // 0x00,休眠模式，0x01:自动射击模式，0x02：自动瞄准模式（不发子弹）,0x03,测试模式,不控制.
-  // 0x10,设置目标为红色，0x11,设置目标为蓝色
   response->success = true;
-  if (request->mode == 0x00) {
-    cam_client_->stop();
-  } else if (request->mode == 0x01) {
-    cam_client_->start();
-    gimbal_ctrl_flag_ = true;
-    shoot_ctrl_flag_ = true;
-  } else if (request->mode == 0x02) {
-    cam_client_->start();
-    gimbal_ctrl_flag_ = true;
-    shoot_ctrl_flag_ = false;
-  } else if (request->mode == 0x03) {
-    cam_client_->start();
-    gimbal_ctrl_flag_ = false;
-    shoot_ctrl_flag_ = false;
-  } else if (request->mode == 0x10) {
-    //red color config
+  if (request->color == request->RED) {
+    // red color config
     auto_aim_algo_->set_target_color(true);
     RCLCPP_INFO(node_->get_logger(), "set target color red");
-  } else if (request->mode == 0x11) {
-    //blue color config
+  } else if (request->color == request->BLUE) {
+    // blue color config
     auto_aim_algo_->set_target_color(false);
     RCLCPP_INFO(node_->get_logger(), "set target color blue");
   } else {
@@ -158,6 +140,21 @@ bool SimpleAutoAimNode::set_mode_cb(
 void SimpleAutoAimNode::gimbal_state_cb(const rmoss_interfaces::msg::Gimbal::SharedPtr msg)
 {
   current_pitch_ = msg->pitch;
+}
+
+rmoss_util::TaskStatus SimpleAutoAimNode::get_task_status_cb(){
+  return rmoss_util::TaskStatus::Running;
+}
+
+bool SimpleAutoAimNode::control_task_cb(rmoss_util::TaskCmd cmd){
+  if (cmd == rmoss_util::TaskCmd::Start) {
+    run_flag_ = true;
+  } else if (cmd == rmoss_util::TaskCmd::Stop) {
+    run_flag_ = false;
+  } else {
+    return false;
+  }
+  return true;
 }
 
 }  // namespace rmoss_auto_aim

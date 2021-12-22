@@ -41,7 +41,7 @@ public:
 
 public:
   void set_target_color(bool is_red);
-  int process(cv::Mat &img, float current_pitch);
+  int process(const cv::Mat &img, float current_pitch);
   ArmorTarget getTarget();
   void setTrack(bool is_track);
 

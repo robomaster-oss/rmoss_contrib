@@ -35,10 +35,10 @@ public:
   //set target
   void setTargetColor(ArmorColor color);
   //algorithm for small power rune
-  int process4small(cv::Mat & img);
+  int process4small(const cv::Mat & img);
   void clear4small();
   //algorithm for large power rune
-  int process4large(cv::Mat & img);
+  int process4large(const cv::Mat & img);
   void clear4large();
   //shoot
   cv::Point3f getShootTarget();

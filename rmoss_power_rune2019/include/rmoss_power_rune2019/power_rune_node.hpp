@@ -41,7 +41,7 @@ public:
   }
 
 private:
-  void process_image(cv::Mat & img, rclcpp::Time stamp);
+  void process_image(const cv::Mat & img, const rclcpp::Time & stamp);
   bool setModeCallBack(
     const std::shared_ptr<rmoss_interfaces::srv::SetMode::Request> request,
     std::shared_ptr<rmoss_interfaces::srv::SetMode::Response> response);
@@ -69,6 +69,7 @@ private:
   bool is_need_clear_{false};
   bool is_need_reshoot_{false};
   TaskMode current_mode_{TaskMode::idle};
+  bool run_flag_{false};
 };
 }  // namespace rmoss_power_rune2019
 

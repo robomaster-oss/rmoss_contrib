@@ -43,7 +43,7 @@ SimpleAutoAimAlgo::SimpleAutoAimAlgo(
   mono_location_tool_.set_camera_info(camera_intrinsic, camera_distortion);
 }
 
-int SimpleAutoAimAlgo::process(cv::Mat &img, float current_pitch)
+int SimpleAutoAimAlgo::process(const cv::Mat &img, float current_pitch)
 {
   //step1.图像识别
   int ret;

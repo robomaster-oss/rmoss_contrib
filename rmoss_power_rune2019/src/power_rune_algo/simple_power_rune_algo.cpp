@@ -44,7 +44,7 @@ SimplePowerRuneAlgo::SimplePowerRuneAlgo(
 
 SimplePowerRuneAlgo::~SimplePowerRuneAlgo() {}
 
-int SimplePowerRuneAlgo::process4large(cv::Mat & img)
+int SimplePowerRuneAlgo::process4large(const cv::Mat & img)
 {
   Mat roi_img = img(roi_);
   //识别
@@ -116,7 +116,7 @@ int SimplePowerRuneAlgo::process4large(cv::Mat & img)
   return 0;
 }
 
-int SimplePowerRuneAlgo::process4small(cv::Mat & img)
+int SimplePowerRuneAlgo::process4small(const cv::Mat & img)
 {
   int ret;
   Mat roi_img = img(roi_);
