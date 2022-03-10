@@ -41,17 +41,16 @@ public:
   }
 
 private:
+  void init();
   void process_image(const cv::Mat & img, const rclcpp::Time & stamp);
-  bool set_color_cb(
-    const rmoss_interfaces::srv::SetColor::Request::SharedPtr request,
-    rmoss_interfaces::srv::SetColor::Response::SharedPtr response);
-  void gimbal_state_cb(const rmoss_interfaces::msg::Gimbal::SharedPtr msg);
+  void set_color(bool is_red);
   // for task manager
   rmoss_util::TaskStatus get_task_status_cb();
   bool control_task_cb(rmoss_util::TaskCmd cmd);
 
 private:
   rclcpp::Node::SharedPtr node_;
+  rclcpp::TimerBase::SharedPtr init_timer_;
   // 相机客户端
   std::shared_ptr<rmoss_cam::CamClient> cam_client_;
   // 自瞄算法类
@@ -65,6 +64,8 @@ private:
   rclcpp::Subscription<rmoss_interfaces::msg::Gimbal>::SharedPtr gimbal_state_sub_;
   rclcpp::Service<rmoss_interfaces::srv::SetColor>::SharedPtr set_color_srv_;
   // data
+  std::string camera_name_;
+  std::string target_color_{"red"};
   bool debug_{false};
   bool run_flag_{false};
   // 假设相机安装在枪管/云台上，相机到云台的坐标变换 T_{gimbal_camera}

@@ -36,10 +36,10 @@ typedef struct _ArmorTarget
 class SimpleAutoAimAlgo
 {
 public:
-  SimpleAutoAimAlgo(std::vector<double> camera_intrinsic,
-    std::vector<double> camera_distortion);
+  SimpleAutoAimAlgo();
 
 public:
+  void set_camera_info(std::vector<double> camera_intrinsic, std::vector<double> camera_distortion);
   void set_target_color(bool is_red);
   int process(const cv::Mat &img, float current_pitch);
   ArmorTarget getTarget();
@@ -55,7 +55,7 @@ private:
   // 最终目标
   ArmorTarget mTarget;
   // 其他参数
-  bool mIsTrack;
+  bool mIsTrack{false};
   cv::Point2f mLastPoint2;
   cv::Point3f mLastPoint3;
 };

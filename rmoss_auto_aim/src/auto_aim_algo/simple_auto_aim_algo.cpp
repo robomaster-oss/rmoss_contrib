@@ -17,11 +17,8 @@ using namespace std;
 using namespace cv;
 using namespace rmoss_auto_aim;
 
-SimpleAutoAimAlgo::SimpleAutoAimAlgo(
-  std::vector<double> camera_intrinsic,
-  std::vector<double> camera_distortion)
+SimpleAutoAimAlgo::SimpleAutoAimAlgo()
 {
-  mIsTrack = false;
   //初始化装甲板参数
   float realWidth, realHeight, half_x, half_y;
   realHeight = 6.3;
@@ -38,10 +35,15 @@ SimpleAutoAimAlgo::SimpleAutoAimAlgo(
   mBigArmorPoints.emplace_back(-half_x, half_y, 0);
   mBigArmorPoints.emplace_back(-half_x, -half_y, 0);
   mBigArmorPoints.emplace_back(half_x, -half_y, 0);
-  //初始化工具类
-  armor_detector_.set_target_color(true);
+}
+
+void SimpleAutoAimAlgo::set_camera_info(
+  std::vector<double> camera_intrinsic,
+  std::vector<double> camera_distortion)
+{
   mono_location_tool_.set_camera_info(camera_intrinsic, camera_distortion);
 }
+
 
 int SimpleAutoAimAlgo::process(const cv::Mat &img, float current_pitch)
 {
