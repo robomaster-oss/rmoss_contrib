@@ -15,14 +15,18 @@
 #ifndef RMOSS_AUTO_AIM__SIMPLE_AUTO_AIM_NODE_HPP_
 #define RMOSS_AUTO_AIM__SIMPLE_AUTO_AIM_NODE_HPP_
 
-#include <rclcpp/rclcpp.hpp>
 #include <opencv2/opencv.hpp>
-#include <Eigen/Geometry>
+
+#include "rclcpp/rclcpp.hpp"
+#include "tf2_ros/buffer.h"
+#include "tf2_ros/transform_broadcaster.h"
+#include "tf2_ros/transform_listener.h"
 
 #include "rmoss_cam/cam_client.hpp"
 #include "rmoss_auto_aim/simple_auto_aim_algo.hpp"
 #include "rmoss_projectile_motion/gimbal_transform_tool.hpp"
 
+#include "sensor_msgs/msg/image.hpp"
 #include "rmoss_interfaces/msg/gimbal.hpp"
 #include "rmoss_interfaces/msg/gimbal_cmd.hpp"
 #include "rmoss_interfaces/msg/shoot_cmd.hpp"
@@ -44,13 +48,11 @@ private:
   void init();
   void process_image(const cv::Mat & img, const rclcpp::Time & stamp);
   void set_color(bool is_red);
-  // for task manager
   rmoss_util::TaskStatus get_task_status_cb();
   bool control_task_cb(rmoss_util::TaskCmd cmd);
 
 private:
   rclcpp::Node::SharedPtr node_;
-  rclcpp::TimerBase::SharedPtr init_timer_;
   // 相机客户端
   std::shared_ptr<rmoss_cam::CamClient> cam_client_;
   // 自瞄算法类
@@ -63,17 +65,19 @@ private:
   rclcpp::Publisher<rmoss_interfaces::msg::ShootCmd>::SharedPtr shoot_cmd_pub_;
   rclcpp::Subscription<rmoss_interfaces::msg::Gimbal>::SharedPtr gimbal_state_sub_;
   rclcpp::Service<rmoss_interfaces::srv::SetColor>::SharedPtr set_color_srv_;
+  // tf and message filter
+  rclcpp::TimerBase::SharedPtr init_timer_;
+  std::shared_ptr<tf2_ros::TransformBroadcaster> tf_broadcaster_;
+  std::shared_ptr<tf2_ros::TransformListener> tf_listener_;
+  std::shared_ptr<tf2_ros::Buffer> tf_buffer_;
   // data
   std::string camera_name_;
   std::string target_color_{"red"};
   bool debug_{false};
   bool run_flag_{false};
-  // 假设相机安装在枪管/云台上，相机到云台的坐标变换 T_{gimbal_camera}
-  Eigen::Isometry3d trans_gc_; 
   // tmp data
   bool gimbal_ctrl_flag_{true};
   bool shoot_ctrl_flag_{true};
-  float current_pitch_{0};
 };
 }  // namespace rmoss_auto_aim
 

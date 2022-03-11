@@ -14,6 +14,8 @@
 
 #include "rmoss_auto_aim/simple_auto_aim_node.hpp"
 
+#include "geometry_msgs/msg/point_stamped.hpp"
+#include "tf2_geometry_msgs/tf2_geometry_msgs.h"
 #include "rmoss_util/debug.hpp"
 
 using namespace std::chrono_literals;
@@ -48,6 +50,10 @@ SimpleAutoAimNode::SimpleAutoAimNode(const rclcpp::NodeOptions & options)
       this->set_color(request->color == request->RED);
       return true;
     });
+  // init tf
+  tf_buffer_ = std::make_shared<tf2_ros::Buffer>(node_->get_clock());
+  tf_listener_ = std::make_shared<tf2_ros::TransformListener>(*tf_buffer_);
+  tf_broadcaster_ = std::make_shared<tf2_ros::TransformBroadcaster>(node_);
   // init tool
   cam_client_ = std::make_shared<rmoss_cam::CamClient>(node_);
   gimbal_tansformoss_tool_ = std::make_shared<rmoss_projectile_motion::GimbalTransformTool>();
@@ -69,6 +75,11 @@ SimpleAutoAimNode::SimpleAutoAimNode(const rclcpp::NodeOptions & options)
 }
 
 void SimpleAutoAimNode::init(){
+  cam_client_->set_camera_name(camera_name_);
+  cam_client_->set_camera_callback(
+    [this](const cv::Mat & img, const rclcpp::Time & stamp) {
+      this->process_image(img, stamp);
+    });
   // get camera info
   sensor_msgs::msg::CameraInfo info;
   if(!cam_client_->get_camera_info(info)){
@@ -82,41 +93,50 @@ void SimpleAutoAimNode::init(){
   // set enemy robot color
   bool is_red = (target_color_ == "red");
   auto_aim_algo_->set_target_color(is_red);
-  cam_client_->connect(
-    camera_name_,
-    [this](const cv::Mat & img, const rclcpp::Time & stamp)
-    {
-      this->process_image(img, stamp);
-    });
+  cam_client_->connect();
   RCLCPP_INFO(node_->get_logger(), "init successfully!");
 }
-void SimpleAutoAimNode::process_image(const cv::Mat & img, const rclcpp::Time &/*stamp*/)
+void SimpleAutoAimNode::process_image(const cv::Mat & img, const rclcpp::Time &stamp)
 {
   if (!run_flag_) {
     return;
   }
-  int ret = auto_aim_algo_->process(img, current_pitch_);
+  int ret = auto_aim_algo_->process(img, 0);
   if (ret != 0) {
     RCLCPP_INFO(node_->get_logger(), "not find target!");     //表示没有发现目标
     return;
   }
+  RCLCPP_INFO(node_->get_logger(), "detect!");
   ArmorTarget target = auto_aim_algo_->getTarget();
   target.postion = target.postion / 100;
-  Eigen::Vector3d point(target.postion.x,target.postion.y,target.postion.z);
-  // calcaule angle of gimbal (in gimbal base frame)
-  double pitch, yaw;
-  if (!gimbal_tansformoss_tool_->solve(point, pitch, yaw)) {
-    RCLCPP_ERROR(node_->get_logger(), "transform failed: (%.3lf,%.3lf,%.3lf)", point(0), point(1), point(2));
+  // transform to gimbal_home
+  geometry_msgs::msg::PointStamped target_in_camera, target_in_home;
+  target_in_camera.header.frame_id = camera_name_ + "_optical";
+  target_in_camera.header.stamp = stamp;
+  target_in_camera.point.x = target.postion.x;
+  target_in_camera.point.y = target.postion.y;
+  target_in_camera.point.z = target.postion.z;
+  try{
+    tf_buffer_->transform(target_in_camera, target_in_home, "gimbal_home", 10ms);
+  } catch (tf2::TransformException & e) {
+    RCLCPP_ERROR(
+      node_->get_logger(), "%s_optical transforms failed: (%s)", camera_name_.c_str(), e.what());
     return;
   }
-  RCLCPP_INFO(node_->get_logger(), "find target: (%.3lf,%.3lf,%.3lf)", point(0), point(1), point(2));
-
+  RCLCPP_INFO(
+    node_->get_logger(), "find target: (%.3lf,%.3lf,%.3lf)",
+    target_in_home.point.x, target_in_home.point.y, target_in_home.point.z);
+  // transfrom to pitch,yaw
+  double pitch, yaw;
+  if (!gimbal_tansformoss_tool_->solve(target_in_home.point, pitch, yaw)) {
+    RCLCPP_ERROR(node_->get_logger(), "transform failed！");
+    return;
+  }
   // 发布云台控制topic,relative angle
   rmoss_interfaces::msg::GimbalCmd gimbal_cmd;
-  gimbal_cmd.position.pitch = pitch - current_pitch_;
+  gimbal_cmd.position.pitch = pitch;
   gimbal_cmd.position.yaw = yaw;
   gimbal_cmd_pub_->publish(gimbal_cmd);
-  
   //发射子弹
   if(fabs(yaw) < 0.01){
     rmoss_interfaces::msg::ShootCmd shoot_cmd;
