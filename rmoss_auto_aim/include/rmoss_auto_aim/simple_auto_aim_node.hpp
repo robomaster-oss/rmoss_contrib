@@ -75,6 +75,7 @@ private:
   std::string target_color_{"red"};
   bool debug_{false};
   bool run_flag_{false};
+  tf2::Duration transform_tolerance_;
   // tmp data
   bool gimbal_ctrl_flag_{true};
   bool shoot_ctrl_flag_{true};

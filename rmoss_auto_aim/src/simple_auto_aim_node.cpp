@@ -26,15 +26,19 @@ SimpleAutoAimNode::SimpleAutoAimNode(const rclcpp::NodeOptions & options)
 {
   node_ = std::make_shared<rclcpp::Node>("simple_auto_aim", options);
   bool autostart = false;
+  double transform_tolerance_sec;
   // parameters
   node_->declare_parameter("target_color", target_color_);
   node_->declare_parameter("debug", debug_);
   node_->declare_parameter("camera_name", camera_name_);
   node_->declare_parameter("autostart", autostart);
+  node_->declare_parameter("transform_tolerance", transform_tolerance_sec);
   node_->get_parameter("target_color", target_color_);
   node_->get_parameter("debug", debug_);
   node_->get_parameter("camera_name", camera_name_);
   node_->get_parameter("autostart", autostart);
+  node_->get_parameter("transform_tolerance", transform_tolerance_sec);
+  transform_tolerance_ = tf2::durationFromSec(transform_tolerance_sec);
   rmoss_util::set_debug(debug_);
   // create pub,sub,srv
   using namespace std::placeholders;
@@ -117,7 +121,7 @@ void SimpleAutoAimNode::process_image(const cv::Mat & img, const rclcpp::Time &s
   target_in_camera.point.y = target.postion.y;
   target_in_camera.point.z = target.postion.z;
   try{
-    tf_buffer_->transform(target_in_camera, target_in_home, "gimbal_home", 10ms);
+    tf_buffer_->transform(target_in_camera, target_in_home, "gimbal_home", transform_tolerance_);
   } catch (tf2::TransformException & e) {
     RCLCPP_ERROR(
       node_->get_logger(), "%s_optical transforms failed: (%s)", camera_name_.c_str(), e.what());
