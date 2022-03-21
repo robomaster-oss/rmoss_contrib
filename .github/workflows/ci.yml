@@ -24,14 +24,8 @@ jobs:
           target-ros2-distro: galactic
           vcs-repo-file-url: "${{ github.workspace }}/dependency.repos"
           skip-tests: true
-      # - name: Test rmoss_auto_aim
-      #   run: |
-      #     source /opt/ros/galactic/setup.sh
-      #     cd ros_ws
-      #   colcon test --packages-select rmoss_auto_aim --event-handlers console_cohesion+ --return-code-on-test-failure
-      # - name: Test rmoss_power_rune2019
-      #   run: |
-      #     source /opt/ros/galactic/setup.sh
-      #     cd ros_ws
-      #   colcon test --packages-select rmoss_power_rune2019 --event-handlers console_cohesion+ --return-code-on-test-failure
-  
+      - name: Test rmoss_auto_aim
+        run: |
+          source /opt/ros/galactic/setup.sh
+          cd ros_ws
+        colcon test --packages-select rmoss_auto_aim --event-handlers console_cohesion+ --return-code-on-test-failure
