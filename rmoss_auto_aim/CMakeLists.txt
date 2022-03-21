@@ -17,8 +17,9 @@ find_package(rmoss_util REQUIRED)
 find_package(rmoss_cam REQUIRED)
 find_package(rmoss_projectile_motion REQUIRED)
 find_package(OpenCV REQUIRED)
-find_package(eigen3_cmake_module REQUIRED)
-find_package(Eigen3 REQUIRED)
+find_package(geometry_msgs REQUIRED)
+find_package(tf2_geometry_msgs REQUIRED)
+find_package(tf2_ros REQUIRED)
 
 # Include
 include_directories(include)
@@ -36,8 +37,9 @@ set(dependencies
   rmoss_cam
   rmoss_projectile_motion
   OpenCV
-  Eigen3
-  eigen3_cmake_module
+  geometry_msgs
+  tf2_geometry_msgs
+  tf2_ros
 )
 ament_target_dependencies(${PROJECT_NAME} ${dependencies})
 

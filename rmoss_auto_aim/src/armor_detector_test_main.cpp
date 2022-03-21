@@ -53,8 +53,10 @@ int main(int argc, char * argv[])
     }
   };
   // create cam client
-  auto cam_client = std::make_shared<rmoss_cam::CamClient>(
-    node, camera_name, process_image_fn, false);
+  auto cam_client = std::make_shared<rmoss_cam::CamClient>(node);
+  cam_client->set_camera_name(camera_name);
+  cam_client->set_camera_callback(process_image_fn);
+  cam_client->connect();
   // spin
   rclcpp::spin(node);
   rclcpp::shutdown();
