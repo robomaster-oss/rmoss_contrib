@@ -28,4 +28,4 @@ jobs:
         run: |
           source /opt/ros/galactic/setup.sh
           cd ros_ws
-        colcon test --packages-select rmoss_auto_aim --event-handlers console_cohesion+ --return-code-on-test-failure
+          colcon test --packages-select rmoss_auto_aim --event-handlers console_cohesion+ --return-code-on-test-failure
