@@ -15,8 +15,10 @@
 #ifndef RMOSS_AUTO_AIM__SIMPLE_AUTO_AIM_NODE_HPP_
 #define RMOSS_AUTO_AIM__SIMPLE_AUTO_AIM_NODE_HPP_
 
-#include <opencv2/opencv.hpp>
+#include <memory>
+#include <string>
 
+#include "opencv2/opencv.hpp"
 #include "rclcpp/rclcpp.hpp"
 #include "tf2_ros/buffer.h"
 #include "tf2_ros/transform_broadcaster.h"

@@ -12,9 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <rclcpp/rclcpp.hpp>
-#include <opencv2/opencv.hpp>
+#include <memory>
+#include <string>
 
+#include "opencv2/opencv.hpp"
+#include "rclcpp/rclcpp.hpp"
 #include "rmoss_util/debug.hpp"
 #include "rmoss_util/image_utils.hpp"
 #include "rmoss_cam/cam_client.hpp"
@@ -46,7 +48,7 @@ int main(int argc, char * argv[])
           RMOSS_DEBUG(rmoss_util::draw_4points(img2, result.points));
         }
         RMOSS_DEBUG(cv::imshow("result", img2));
-        //wait to exit
+        // wait to exit
         cv::waitKey(0);
       } else {
         std::cout << "not find" << std::endl;

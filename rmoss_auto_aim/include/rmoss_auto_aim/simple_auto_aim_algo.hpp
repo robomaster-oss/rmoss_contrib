@@ -15,7 +15,9 @@
 #ifndef RMOSS_AUTO_AIM__SIMPLE_AUTO_AIM_ALGO_HPP_
 #define RMOSS_AUTO_AIM__SIMPLE_AUTO_AIM_ALGO_HPP_
 #include <string>
-#include <opencv2/opencv.hpp>
+#include <vector>
+
+#include "opencv2/opencv.hpp"
 #include "rmoss_auto_aim/armor_detector.hpp"
 #include "rmoss_util/mono_measure_tool.hpp"
 
@@ -59,6 +61,6 @@ private:
   cv::Point2f mLastPoint2;
   cv::Point3f mLastPoint3;
 };
-}
+}  // namespace rmoss_auto_aim
 
 #endif  // RMOSS_AUTO_AIM__SIMPLE_AUTO_AIM_ALGO_HPP_

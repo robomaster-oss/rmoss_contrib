@@ -14,6 +14,10 @@
 
 #include "rmoss_auto_aim/simple_auto_aim_node.hpp"
 
+#include <memory>
+#include <string>
+#include <vector>
+
 #include "geometry_msgs/msg/point_stamped.hpp"
 #include "tf2_geometry_msgs/tf2_geometry_msgs.h"
 #include "rmoss_util/debug.hpp"
@@ -109,7 +113,7 @@ void SimpleAutoAimNode::process_image(const cv::Mat & img, const rclcpp::Time & 
   }
   int ret = auto_aim_algo_->process(img, 0);
   if (ret != 0) {
-    RCLCPP_INFO(node_->get_logger(), "not find target!");     //表示没有发现目标
+    RCLCPP_INFO(node_->get_logger(), "not find target!");     // 表示没有发现目标
     return;
   }
   RCLCPP_INFO(node_->get_logger(), "detect!");
@@ -143,7 +147,7 @@ void SimpleAutoAimNode::process_image(const cv::Mat & img, const rclcpp::Time & 
   gimbal_cmd.position.pitch = pitch;
   gimbal_cmd.position.yaw = yaw;
   gimbal_cmd_pub_->publish(gimbal_cmd);
-  //发射子弹
+  // 发射子弹
   if (fabs(yaw) < 0.01) {
     rmoss_interfaces::msg::ShootCmd shoot_cmd;
     shoot_cmd.projectile_num = 3;
