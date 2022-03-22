@@ -45,7 +45,7 @@ void SimpleAutoAimAlgo::set_camera_info(
 }
 
 
-int SimpleAutoAimAlgo::process(const cv::Mat &img, float current_pitch)
+int SimpleAutoAimAlgo::process(const cv::Mat & img, float current_pitch)
 {
   //step1.图像识别
   int ret;
