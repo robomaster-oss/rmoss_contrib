@@ -31,7 +31,7 @@ add_library(${PROJECT_NAME} SHARED
   src/simple_auto_aim_node.cpp
 )
 set(dependencies
-  rclcpp 
+  rclcpp
   rmoss_interfaces
   rmoss_util
   rmoss_cam
@@ -73,16 +73,16 @@ install(TARGETS simple_auto_aim
 )
 
 # Install executable scripts
-install(PROGRAMS 
+install(PROGRAMS
         scripts/client.py
     DESTINATION lib/${PROJECT_NAME})
 
 
-#export rmoss_auto_aim dependency
+# export rmoss_auto_aim dependency
 ament_export_targets(${PROJECT_NAME} HAS_LIBRARY_TARGET)
 ament_export_dependencies(${dependencies})
 
-#test
+# test
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
   ament_lint_auto_find_test_dependencies()

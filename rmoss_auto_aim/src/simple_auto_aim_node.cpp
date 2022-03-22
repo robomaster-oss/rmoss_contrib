@@ -14,13 +14,18 @@
 
 #include "rmoss_auto_aim/simple_auto_aim_node.hpp"
 
+#include <memory>
+#include <string>
+#include <vector>
+
 #include "geometry_msgs/msg/point_stamped.hpp"
 #include "tf2_geometry_msgs/tf2_geometry_msgs.h"
 #include "rmoss_util/debug.hpp"
 
 using namespace std::chrono_literals;
 
-namespace rmoss_auto_aim{
+namespace rmoss_auto_aim
+{
 
 SimpleAutoAimNode::SimpleAutoAimNode(const rclcpp::NodeOptions & options)
 {
@@ -47,9 +52,9 @@ SimpleAutoAimNode::SimpleAutoAimNode(const rclcpp::NodeOptions & options)
   shoot_cmd_pub_ = node_->create_publisher<rmoss_interfaces::msg::ShootCmd>(
     "robot_base/shoot_cmd", 10);
   set_color_srv_ = node_->create_service<rmoss_interfaces::srv::SetColor>(
-    "auto_aim/set_color", 
+    "auto_aim/set_color",
     [this](const rmoss_interfaces::srv::SetColor::Request::SharedPtr request,
-          rmoss_interfaces::srv::SetColor::Response::SharedPtr response){
+    rmoss_interfaces::srv::SetColor::Response::SharedPtr response) {
       response->success = true;
       this->set_color(request->color == request->RED);
       return true;
@@ -65,8 +70,8 @@ SimpleAutoAimNode::SimpleAutoAimNode(const rclcpp::NodeOptions & options)
   // init task manager
   task_manager_ = std::make_shared<rmoss_util::TaskManager>(
     node_,
-    [this](){ return this->get_task_status_cb(); },
-    [this](rmoss_util::TaskCmd cmd){ return this->control_task_cb(cmd); });
+    [this]() {return this->get_task_status_cb();},
+    [this](rmoss_util::TaskCmd cmd) {return this->control_task_cb(cmd);});
   // timer for init
   init_timer_ = node_->create_wall_timer(
     0s, [this]() {
@@ -78,7 +83,8 @@ SimpleAutoAimNode::SimpleAutoAimNode(const rclcpp::NodeOptions & options)
   }
 }
 
-void SimpleAutoAimNode::init(){
+void SimpleAutoAimNode::init()
+{
   cam_client_->set_camera_name(camera_name_);
   cam_client_->set_camera_callback(
     [this](const cv::Mat & img, const rclcpp::Time & stamp) {
@@ -86,7 +92,7 @@ void SimpleAutoAimNode::init(){
     });
   // get camera info
   sensor_msgs::msg::CameraInfo info;
-  if(!cam_client_->get_camera_info(info)){
+  if (!cam_client_->get_camera_info(info)) {
     RCLCPP_ERROR(node_->get_logger(), "get camera info failed!");
     return;
   }
@@ -100,14 +106,14 @@ void SimpleAutoAimNode::init(){
   cam_client_->connect();
   RCLCPP_INFO(node_->get_logger(), "init successfully!");
 }
-void SimpleAutoAimNode::process_image(const cv::Mat & img, const rclcpp::Time &stamp)
+void SimpleAutoAimNode::process_image(const cv::Mat & img, const rclcpp::Time & stamp)
 {
   if (!run_flag_) {
     return;
   }
   int ret = auto_aim_algo_->process(img, 0);
   if (ret != 0) {
-    RCLCPP_INFO(node_->get_logger(), "not find target!");     //表示没有发现目标
+    RCLCPP_INFO(node_->get_logger(), "not find target!");     // 表示没有发现目标
     return;
   }
   RCLCPP_INFO(node_->get_logger(), "detect!");
@@ -120,7 +126,7 @@ void SimpleAutoAimNode::process_image(const cv::Mat & img, const rclcpp::Time &s
   target_in_camera.point.x = target.postion.x;
   target_in_camera.point.y = target.postion.y;
   target_in_camera.point.z = target.postion.z;
-  try{
+  try {
     tf_buffer_->transform(target_in_camera, target_in_home, "gimbal_home", transform_tolerance_);
   } catch (tf2::TransformException & e) {
     RCLCPP_ERROR(
@@ -141,8 +147,8 @@ void SimpleAutoAimNode::process_image(const cv::Mat & img, const rclcpp::Time &s
   gimbal_cmd.position.pitch = pitch;
   gimbal_cmd.position.yaw = yaw;
   gimbal_cmd_pub_->publish(gimbal_cmd);
-  //发射子弹
-  if(fabs(yaw) < 0.01){
+  // 发射子弹
+  if (fabs(yaw) < 0.01) {
     rmoss_interfaces::msg::ShootCmd shoot_cmd;
     shoot_cmd.projectile_num = 3;
     shoot_cmd_pub_->publish(shoot_cmd);
@@ -162,11 +168,13 @@ void SimpleAutoAimNode::set_color(bool is_red)
   }
 }
 
-rmoss_util::TaskStatus SimpleAutoAimNode::get_task_status_cb(){
+rmoss_util::TaskStatus SimpleAutoAimNode::get_task_status_cb()
+{
   return rmoss_util::TaskStatus::Running;
 }
 
-bool SimpleAutoAimNode::control_task_cb(rmoss_util::TaskCmd cmd){
+bool SimpleAutoAimNode::control_task_cb(rmoss_util::TaskCmd cmd)
+{
   if (cmd == rmoss_util::TaskCmd::Start) {
     run_flag_ = true;
   } else if (cmd == rmoss_util::TaskCmd::Stop) {

@@ -15,31 +15,34 @@
 #include "rmoss_auto_aim/armor_detector.hpp"
 
 #include <cmath>
+#include <vector>
 
 #include "rmoss_util/debug.hpp"
 #include "rmoss_util/image_utils.hpp"
 
-using namespace std;
-using namespace cv;
-using namespace rmoss_auto_aim;
+using cv::Mat;
+using cv::Point2f;
+
+namespace rmoss_auto_aim
+{
 
 ArmorDetector::ArmorDetector() {target_is_red_ = true;}
 ArmorDetector::~ArmorDetector() {}
 
-//颜色和亮度做与运算
+// 颜色和亮度做与运算
 int ArmorDetector::preImg(Mat src, Mat & dst)
 {
   Mat bgr[3];
   Mat img_b, img_g, img_r;
-  split(src, bgr);   //将三个通道的像素值分离
+  cv::split(src, bgr);   // 将三个通道的像素值分离
   img_b = bgr[0];
   img_g = bgr[1];
   img_r = bgr[2];
-  //RMOSS_DEBUG(imshow("b", img_b));
-  //RMOSS_DEBUG(imshow("g", img_g));
-  //RMOSS_DEBUG(imshow("r", img_r));
+  // RMOSS_DEBUG(cv::imshow("b", img_b));
+  // RMOSS_DEBUG(cv::imshow("g", img_g));
+  // RMOSS_DEBUG(cv::imshow("r", img_r));
   Mat imgTargetColor, imgBrightness;
-  // default taget is red
+  //  default taget is red
   if (target_is_red_) {
     imgTargetColor = img_r - 0.2 * img_g - 0.8 * img_b;
     imgBrightness = img_r;
@@ -47,29 +50,29 @@ int ArmorDetector::preImg(Mat src, Mat & dst)
     imgTargetColor = img_b - 0.8 * img_r - 0.2 * img_g;
     imgBrightness = img_b;
   }
-  //目标颜色区域
-  Mat element = getStructuringElement(MORPH_ELLIPSE, Size(7, 7));
-  dilate(imgTargetColor, imgTargetColor, element);
-  threshold(imgTargetColor, imgTargetColor, 72, 255, cv::THRESH_BINARY);
-  RMOSS_DEBUG(imshow("target_dialte_thre", imgTargetColor));
-  //亮度区域
-  GaussianBlur(imgBrightness, imgBrightness, Size(3, 3), 1);
-  threshold(imgBrightness, imgBrightness, 150, 255, cv::THRESH_BINARY);
-  RMOSS_DEBUG(imshow("bright_thre", imgBrightness));
-  //逻辑与，求交集
-  bitwise_and(imgTargetColor, imgBrightness, dst);
-  RMOSS_DEBUG(imshow("dst", dst));
+  // 目标颜色区域
+  Mat element = cv::getStructuringElement(cv::MORPH_ELLIPSE, cv::Size(7, 7));
+  cv::dilate(imgTargetColor, imgTargetColor, element);
+  cv::threshold(imgTargetColor, imgTargetColor, 72, 255, cv::THRESH_BINARY);
+  RMOSS_DEBUG(cv::imshow("target_dialte_thre", imgTargetColor));
+  // 亮度区域
+  cv::GaussianBlur(imgBrightness, imgBrightness, cv::Size(3, 3), 1);
+  cv::threshold(imgBrightness, imgBrightness, 150, 255, cv::THRESH_BINARY);
+  RMOSS_DEBUG(cv::imshow("bright_thre", imgBrightness));
+  // 逻辑与，求交集
+  cv::bitwise_and(imgTargetColor, imgBrightness, dst);
+  RMOSS_DEBUG(cv::imshow("dst", dst));
   return 0;
 }
 
-//通过图片上拟合的矩形轮廓，获取灯条，满足灯条要求的返回0,否则返回1
+// 通过图片上拟合的矩形轮廓，获取灯条，满足灯条要求的返回0,否则返回1
 int ArmorDetector::getLightDescriptor(
   cv::RotatedRect r,
   LightDescriptor & light)
 {
   light.lightArea = r.size.area();
   if (light.lightArea < 10 || light.lightArea > 3000) {
-    return 1;     //区域大小不满足
+    return 1;     // 区域大小不满足
   }
   light.r = r;
   Point2f rect_points[4];
@@ -78,7 +81,7 @@ int ArmorDetector::getLightDescriptor(
   float lineLen1 = cv::norm(rect_points[0] - rect_points[1]);
   // line2:point1-point2
   float lineLen2 = cv::norm(rect_points[1] - rect_points[2]);
-  Point2f endPoint1, endPoint2;   //直线条的端点
+  Point2f endPoint1, endPoint2;   // 直线条的端点
   if (lineLen1 > lineLen2) {
     // line1为最长边
     endPoint1 = (rect_points[0] + rect_points[3]) / 2;
@@ -100,13 +103,13 @@ int ArmorDetector::getLightDescriptor(
   sqrt(h)*wh  1.5  1.23   1.1   1.58 1.69    1.65   2.11    取3
   */
   if (light.lightRatioWH > 3 / sqrt(light.lightHight)) {
-    return 2;     //宽高比不符合，与区域面积（高度）有关，正相关
+    return 2;     // 宽高比不符合，与区域面积（高度）有关，正相关
   }
   if (light.lightRatioWH > 1) {
-    return 2;     //宽高比不符合，与区域面积（高度）有关，正相关
+    return 2;     // 宽高比不符合，与区域面积（高度）有关，正相关
   }
 
-  //直线的上下端点
+  // 直线的上下端点
   if (endPoint1.y > endPoint2.y) {
     light.endPointYMax = endPoint1;
     light.endPointYMin = endPoint2;
@@ -114,11 +117,11 @@ int ArmorDetector::getLightDescriptor(
     light.endPointYMax = endPoint2;
     light.endPointYMin = endPoint1;
   }
-  //求解灯条angel与x轴的夹角
+  // 求解灯条angel与x轴的夹角
   light.lightAngle = rmoss_util::calc_inclination_angle(light.endPointYMin, light.endPointYMax);
   light.lightAngle = rmoss_util::rad_to_deg(light.lightAngle);
   if (abs(light.lightAngle - 90) > 45) {
-    return 3;     //灯条倾斜度不符合
+    return 3;     // 灯条倾斜度不符合
   }
   light.centerPoint = r.center;
   return 0;
@@ -139,21 +142,21 @@ int ArmorDetector::lightsMatch(
   armor.armorWidth = cv::norm(armor.lightL.centerPoint - armor.lightR.centerPoint);
   armor.armorHight = armor.lightL.lightHight > armor.lightR.lightHight ?
     armor.lightL.lightHight :
-    armor.lightR.lightHight;       //取两灯条最大值
+    armor.lightR.lightHight;       // 取两灯条最大值
   armor.armorRatioWH = armor.armorWidth / armor.armorHight;
-  //条件1
+  // 条件1
   if (armor.armorHight < 60) {
     if (armor.parallelErr > 4) {
-      return 1;       //平行太大误差，否定
+      return 1;       // 平行太大误差，否定
     }
   } else {
     if (armor.parallelErr > armor.armorHight / 15) {
-      return 1;       //平行太大误差，否定
+      return 1;       // 平行太大误差，否定
     }
   }
-  //条件2
+  // 条件2
   if (armor.armorRatioWH < 1 || armor.armorRatioWH > 5) {
-    return 2;     //宽高比不符合，否定
+    return 2;     // 宽高比不符合，否定
   }
 
   float innerAngle;
@@ -167,27 +170,27 @@ int ArmorDetector::lightsMatch(
       armor.lightR.endPointYMin, armor.lightL.centerPoint);
   }
   armor.innerAngleErr = abs(rmoss_util::rad_to_deg(innerAngle) - 90);
-  //条件3
+  // 条件3
   if (armor.innerAngleErr > 20) {
-    return 3;     //装甲板正度（矩形内角=90）不符合，否定
+    return 3;     // 装甲板正度（矩形内角=90）不符合，否定
   }
   armor.horizonLineAngle = rmoss_util::calc_inclination_angle(
     armor.lightL.centerPoint,
     armor.lightR.centerPoint);
   armor.horizonLineAngle = rmoss_util::rad_to_deg(armor.horizonLineAngle);
-  //条件4
+  // 条件4
   if (abs(armor.horizonLineAngle - 90) < 60) {
-    return 4;     //装甲板倾斜不符合，否定
+    return 4;     // 装甲板倾斜不符合，否定
   }
-  //修补
+  // 修补
   if (armor.lightL.lightHight > armor.lightR.lightHight) {
-    lightHightLong(armor.lightR, armor.armorHight);     //修补右灯条
+    lightHightLong(armor.lightR, armor.armorHight);     // 修补右灯条
   } else {
-    lightHightLong(armor.lightL, armor.armorHight);     //补偿左灯条
+    lightHightLong(armor.lightL, armor.armorHight);     // 补偿左灯条
   }
-  //计算中心点
+  // 计算中心点
   armor.centerPoint = (armor.lightR.centerPoint + armor.lightL.centerPoint) / 2;
-  //装甲板四个点
+  // 装甲板四个点
   armor.points[0] = armor.lightR.endPointYMin;
   armor.points[1] = armor.lightL.endPointYMin;
   armor.points[2] = armor.lightL.endPointYMax;
@@ -199,52 +202,52 @@ int ArmorDetector::process(cv::Mat img)
 {
   mLights.clear();
   mArmors.clear();
-  RMOSS_DEBUG(waitKey(1));
-  //预处理
-  Mat grayImg;
+  RMOSS_DEBUG(cv::waitKey(1));
+  // 预处理
+  cv::Mat grayImg;
   preImg(img, grayImg);
-  //提取灯条
-  vector<vector<Point>> contours;
-  vector<Vec4i> hierarchy;
-  findContours(
-    grayImg, contours, hierarchy, RETR_EXTERNAL, CHAIN_APPROX_NONE,
-    Point(0, 0));     //只检测外轮廓，保存轮廓上的所有点
+  // 提取灯条
+  std::vector<std::vector<cv::Point>> contours;
+  std::vector<cv::Vec4i> hierarchy;
+  cv::findContours(
+    grayImg, contours, hierarchy, cv::RETR_EXTERNAL, cv::CHAIN_APPROX_NONE,
+    cv::Point(0, 0));     // 只检测外轮廓，保存轮廓上的所有点
   int ret;
   for (const auto & contour : contours) {
-    if (contour.size() > 5) {     //满足最小轮廓点数
-      RotatedRect lightRect = fitEllipse(contour);       //椭圆拟合
+    if (contour.size() > 5) {     // 满足最小轮廓点数
+      auto lightRect = cv::fitEllipse(contour);       // 椭圆拟合
       LightDescriptor light;
       ret = getLightDescriptor(lightRect, light);
       if (ret == 0) {
-        mLights.push_back(light);         //加入灯条列表
+        mLights.push_back(light);         // 加入灯条列表
       }
-      // cout<<"light ret:"<<ret<<endl;
+      //  std::cout<<"light ret:"<<ret<<std::endl;
     }
   }
-  // cout<<"light num:"<<mLights.size()<<endl;
-  Mat drawing = Mat::zeros(img.size(), CV_8UC3);
+  // std::cout<<"light num:"<<mLights.size()<<std::endl;
+  cv::Mat drawing = Mat::zeros(img.size(), CV_8UC3);
   for (size_t i = 0; i < mLights.size(); i++) {
     RMOSS_DEBUG(rmoss_util::draw_rotated_rect(drawing, mLights[i].r));
   }
-  RMOSS_DEBUG(imshow("light", drawing));
-  //赋予id
+  RMOSS_DEBUG(cv::imshow("light", drawing));
+  // 赋予id
   for (size_t i = 0; i < mLights.size(); i++) {
     mLights[i].id = i;
   }
-  //匹配灯条
+  // 匹配灯条
   if (mLights.size() < 2) {
     return 1;
   }
-  //遍历匹配
+  // 遍历匹配
   for (size_t i = 0; i < mLights.size(); i++) {
     for (size_t j = i + 1; j < mLights.size(); j++) {
       ArmorDescriptor armor;
       ret = lightsMatch(mLights[i], mLights[j], armor);
       if (ret == 0) {
         mArmors.push_back(armor);
-        // printArmorDescriptor(armor);
+        //  printArmorDescriptor(armor);
       }
-      // cout<<"match ret:"<<ret<<endl;
+      // std::cout<<"match ret:"<<ret<<std::endl;
     }
   }
   if (mArmors.size() <= 0) {
@@ -253,40 +256,40 @@ int ArmorDetector::process(cv::Mat img)
   for (size_t i = 0; i < mArmors.size(); i++) {
     RMOSS_DEBUG(rmoss_util::draw_4points(img, mArmors[i].points));
   }
-  RMOSS_DEBUG(imshow("result", img));
-  //返回处理结果
+  RMOSS_DEBUG(cv::imshow("result", img));
+  // 返回处理结果
   return 0;
 }
 
 void ArmorDetector::lightHightLong(
   LightDescriptor & light,
   float height)
-{ //灯条高度补偿
-  float coff;   //补偿比例系数
-  coff = (float)((height - light.lightHight) / height * 0.45);
+{ // 灯条高度补偿
+  float coff;   // 补偿比例系数
+  coff = static_cast<float>((height - light.lightHight) / height * 0.45);
   cv::Point2f dVec = coff * (light.endPointYMax - light.endPointYMin);
   light.endPointYMax = light.endPointYMax + dVec;
   light.endPointYMin = light.endPointYMin - dVec;
 }
 
-vector<ArmorDescriptor> ArmorDetector::getArmorVector() {return mArmors;}
+std::vector<ArmorDescriptor> ArmorDetector::getArmorVector() {return mArmors;}
 
 void ArmorDetector::printArmorDescriptor(ArmorDescriptor armor)
 {
-  cout << "-----------------------------------" << endl;
-  cout << "装甲板高度" << armor.armorHight << endl;
-  cout << "装甲板宽度" << armor.armorWidth << endl;
-  cout << "装甲板宽高比" << armor.armorRatioWH << endl;
-  cout << "装甲板灯条平行角度误差" << armor.parallelErr << endl;
-  cout << "装甲板内角误差" << armor.innerAngleErr << endl;
-  cout << "装甲板水平角度" << armor.horizonLineAngle << endl;
-  cout << "灯条大小：" << armor.lightL.lightArea << "  " <<
-    armor.lightR.lightArea << endl;
-  cout << "灯条高度：" << armor.lightL.lightHight << "  " <<
-    armor.lightR.lightHight << endl;
-  cout << "灯条W/H：" << armor.lightL.lightRatioWH << "  " <<
-    armor.lightR.lightRatioWH << endl;
-  cout << "-----------------------------------" << endl;
+  std::cout << "-----------------------------------" << std::endl;
+  std::cout << "装甲板高度" << armor.armorHight << std::endl;
+  std::cout << "装甲板宽度" << armor.armorWidth << std::endl;
+  std::cout << "装甲板宽高比" << armor.armorRatioWH << std::endl;
+  std::cout << "装甲板灯条平行角度误差" << armor.parallelErr << std::endl;
+  std::cout << "装甲板内角误差" << armor.innerAngleErr << std::endl;
+  std::cout << "装甲板水平角度" << armor.horizonLineAngle << std::endl;
+  std::cout << "灯条大小：" << armor.lightL.lightArea << "  " <<
+    armor.lightR.lightArea << std::endl;
+  std::cout << "灯条高度：" << armor.lightL.lightHight << "  " <<
+    armor.lightR.lightHight << std::endl;
+  std::cout << "灯条W/H：" << armor.lightL.lightRatioWH << "  " <<
+    armor.lightR.lightRatioWH << std::endl;
+  std::cout << "-----------------------------------" << std::endl;
 }
 
 void ArmorDetector::set_target_color(bool is_red)
@@ -295,3 +298,4 @@ void ArmorDetector::set_target_color(bool is_red)
     target_is_red_ = is_red;
   }
 }
+}  // namespace rmoss_auto_aim
