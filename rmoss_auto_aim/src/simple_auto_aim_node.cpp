@@ -20,6 +20,7 @@
 
 #include "geometry_msgs/msg/point_stamped.hpp"
 #include "tf2_geometry_msgs/tf2_geometry_msgs.h"
+#include "tf2_ros/create_timer_ros.h"
 #include "rmoss_util/debug.hpp"
 
 using namespace std::chrono_literals;
@@ -61,6 +62,10 @@ SimpleAutoAimNode::SimpleAutoAimNode(const rclcpp::NodeOptions & options)
     });
   // init tf
   tf_buffer_ = std::make_shared<tf2_ros::Buffer>(node_->get_clock());
+  auto timer_interface = std::make_shared<tf2_ros::CreateTimerROS>(
+    node_->get_node_base_interface(),
+    node_->get_node_timers_interface());
+  tf_buffer_->setCreateTimerInterface(timer_interface);
   tf_listener_ = std::make_shared<tf2_ros::TransformListener>(*tf_buffer_);
   tf_broadcaster_ = std::make_shared<tf2_ros::TransformBroadcaster>(node_);
   // init tool
@@ -86,10 +91,6 @@ SimpleAutoAimNode::SimpleAutoAimNode(const rclcpp::NodeOptions & options)
 void SimpleAutoAimNode::init()
 {
   cam_client_->set_camera_name(camera_name_);
-  cam_client_->set_camera_callback(
-    [this](const cv::Mat & img, const rclcpp::Time & stamp) {
-      this->process_image(img, stamp);
-    });
   // get camera info
   sensor_msgs::msg::CameraInfo info;
   if (!cam_client_->get_camera_info(info)) {
@@ -103,9 +104,22 @@ void SimpleAutoAimNode::init()
   // set enemy robot color
   bool is_red = (target_color_ == "red");
   auto_aim_algo_->set_target_color(is_red);
-  cam_client_->connect();
+
+  // init tf MessageFilters
+  auto transform_tolerance_ = tf2::durationFromSec(0.01);
+  image_sub_ = std::make_unique<message_filters::Subscriber<sensor_msgs::msg::Image>>(
+    node_.get(), camera_name_ + "/image_raw", rmw_qos_profile_sensor_data);
+  image_filter_ = std::make_unique<tf2_ros::MessageFilter<sensor_msgs::msg::Image>>(
+    *image_sub_, *tf_buffer_, "gimbal_home", 10, node_, transform_tolerance_);
+  image_connection_ = image_filter_->registerCallback(
+    [this](sensor_msgs::msg::Image::ConstSharedPtr msg) {
+      auto img =
+      cv::Mat(msg->height, msg->width, CV_8UC3, const_cast<unsigned char *>(msg->data.data()));
+      this->process_image(img, msg->header.stamp);
+    });
   RCLCPP_INFO(node_->get_logger(), "init successfully!");
 }
+
 void SimpleAutoAimNode::process_image(const cv::Mat & img, const rclcpp::Time & stamp)
 {
   if (!run_flag_) {

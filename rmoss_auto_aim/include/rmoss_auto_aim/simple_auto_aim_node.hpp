@@ -23,6 +23,8 @@
 #include "tf2_ros/buffer.h"
 #include "tf2_ros/transform_broadcaster.h"
 #include "tf2_ros/transform_listener.h"
+#include "message_filters/subscriber.h"
+#include "tf2_ros/message_filter.h"
 
 #include "rmoss_cam/cam_client.hpp"
 #include "rmoss_auto_aim/simple_auto_aim_algo.hpp"
@@ -72,6 +74,9 @@ private:
   std::shared_ptr<tf2_ros::TransformBroadcaster> tf_broadcaster_;
   std::shared_ptr<tf2_ros::TransformListener> tf_listener_;
   std::shared_ptr<tf2_ros::Buffer> tf_buffer_;
+  std::unique_ptr<message_filters::Subscriber<sensor_msgs::msg::Image>> image_sub_;
+  std::unique_ptr<tf2_ros::MessageFilter<sensor_msgs::msg::Image>> image_filter_;
+  message_filters::Connection image_connection_;
   // data
   std::string camera_name_;
   std::string target_color_{"red"};
