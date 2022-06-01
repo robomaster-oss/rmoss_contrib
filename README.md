@@ -1,7 +1,7 @@
 # rmoss_contrib
 
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
-[![Build and Test (Galactic)](https://github.com/robomaster-oss/rmoss_contrib/actions/workflows/ci.yml/badge.svg)](https://github.com/robomaster-oss/rmoss_contrib/actions/workflows/ci.yml)
+[![Build and Test](https://github.com/robomaster-oss/rmoss_contrib/actions/workflows/ci.yml/badge.svg?branch=galactic)](https://github.com/robomaster-oss/rmoss_contrib/actions/workflows/ci.yml)
 
 ![](rmoss_bg.png)
 RoboMasterOSS是一个面向RoboMaster的开源软件栈项目，目的是为RoboMaster机器人软件开发提供了一个快速的，灵活的开发工具，支持算法原型研究和robomaster比赛应用开发。
@@ -25,7 +25,7 @@ rmoss_contrib是RoboMaster OSS中的基础项目，为RoboMaster提供任务级�
 
 ## 2.使用说明
 
-* 目前仅支持`ROS2 foxy`版本
+* 依赖ROS2版本 :`Galactic`
 * 依赖于
   * [rmoss_interfaces](https://github.com/robomaster-oss/rmoss_interfaces)
   * [rmoss_core](https://github.com/robomaster-oss/rmoss_core)
@@ -34,9 +34,9 @@ rmoss_contrib是RoboMaster OSS中的基础项目，为RoboMaster提供任务级�
 
 ```bash
 #cd ros2 workspaces src
-git clone https://github.com/robomaster-oss/rmoss_interfaces.git
-git clone https://github.com/robomaster-oss/rmoss_core.git
-git clone https://github.com/robomaster-oss/rmoss_contrib.git
+git clone https://github.com/robomaster-oss/rmoss_interfaces.git -b galactic
+git clone https://github.com/robomaster-oss/rmoss_core.git -b galactic
+git clone https://github.com/robomaster-oss/rmoss_contrib.git -b galactic
 #cd ros2 workspaces
 colcon build
 ```
