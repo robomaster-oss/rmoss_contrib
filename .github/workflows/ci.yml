@@ -1,12 +1,12 @@
-name: Build and Test (Galactic)
+name: Build and Test
 on:
   workflow_dispatch:
   push:
     branches:
-      - main
+      - galactic
   pull_request:
     branches:
-      - main
+      - galactic
   schedule:
     - cron: '0 21 * * *'
 jobs:
