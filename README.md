@@ -38,6 +38,7 @@ git clone https://github.com/robomaster-oss/rmoss_interfaces.git -b galactic
 git clone https://github.com/robomaster-oss/rmoss_core.git -b galactic
 git clone https://github.com/robomaster-oss/rmoss_contrib.git -b galactic
 #cd ros2 workspaces
+rosdep install -y -r -q --from-paths src --ignore-src --rosdistro galactic
 colcon build
 ```
 
