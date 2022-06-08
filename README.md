@@ -25,19 +25,19 @@ rmoss_contrib是RoboMaster OSS中的基础项目，为RoboMaster提供任务级�
 
 ## 2.使用说明
 
-* 依赖ROS2版本 :`Galactic`
-* 依赖于
-  * [rmoss_interfaces](https://github.com/robomaster-oss/rmoss_interfaces)
-  * [rmoss_core](https://github.com/robomaster-oss/rmoss_core)
+环境依赖
+
+* ROS2版本 :`Galactic`
+* RMOSS项目依赖（源码编译）: [rmoss_interfaces](https://github.com/robomaster-oss/rmoss_interfaces), [rmoss_core](https://github.com/robomaster-oss/rmoss_core).
 
 环境配置
 
 ```bash
-#cd ros2 workspaces src
+# cd ros2 workspaces src
 git clone https://github.com/robomaster-oss/rmoss_interfaces.git -b galactic
 git clone https://github.com/robomaster-oss/rmoss_core.git -b galactic
 git clone https://github.com/robomaster-oss/rmoss_contrib.git -b galactic
-#cd ros2 workspaces
+# cd ros2 workspaces
 rosdep install -y -r -q --from-paths src --ignore-src --rosdistro galactic
 colcon build
 ```
