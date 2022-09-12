@@ -19,7 +19,7 @@
 #include <vector>
 
 #include "geometry_msgs/msg/point_stamped.hpp"
-#include "tf2_geometry_msgs/tf2_geometry_msgs.h"
+#include "tf2_geometry_msgs/tf2_geometry_msgs.hpp"
 #include "rmoss_util/debug.hpp"
 
 using namespace std::chrono_literals;
